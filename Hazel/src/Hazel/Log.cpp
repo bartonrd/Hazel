@@ -28,30 +28,30 @@ namespace Hazel {
 
 	void Log::Trace(const std::string& message)
 	{
-		LogMessage(LogLevel::Trace, message);
+		AddLogMessage(LogLevel::Trace, message);
 	}
 
 	void Log::Info(const std::string& message)
 	{
-		LogMessage(LogLevel::Info, message);
+		AddLogMessage(LogLevel::Info, message);
 	}
 
 	void Log::Warn(const std::string& message)
 	{
-		LogMessage(LogLevel::Warn, message);
+		AddLogMessage(LogLevel::Warn, message);
 	}
 
 	void Log::Error(const std::string& message)
 	{
-		LogMessage(LogLevel::Error, message);
+		AddLogMessage(LogLevel::Error, message);
 	}
 
 	void Log::Fatal(const std::string& message)
 	{
-		LogMessage(LogLevel::Fatal, message);
+		AddLogMessage(LogLevel::Fatal, message);
 	}
 
-	void Log::LogMessage(LogLevel level, const std::string& message)
+	void Log::AddLogMessage(LogLevel level, const std::string& message)
 	{
 		std::string timestamp = GetTimestamp();
 		const char* levelStr = LogLevelToString(level);

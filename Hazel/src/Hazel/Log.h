@@ -17,17 +17,17 @@ namespace Hazel {
 		Fatal = 4
 	};
 
+#ifdef _MSC_VER
+	#pragma warning(push)
+	#pragma warning(disable: 4251) // Disable warning about STL types in DLL interface
+#endif
+
 	struct LogMessage
 	{
 		LogLevel level;
 		std::string message;
 		std::string timestamp;
 	};
-
-#ifdef _MSC_VER
-	#pragma warning(push)
-	#pragma warning(disable: 4251) // Disable warning about STL types in DLL interface
-#endif
 
 	class HAZEL_API Log
 	{
@@ -45,7 +45,7 @@ namespace Hazel {
 		static void ClearMessages() { s_Messages.clear(); }
 
 	private:
-		static void LogMessage(LogLevel level, const std::string& message);
+		static void AddLogMessage(LogLevel level, const std::string& message);
 		static std::string GetTimestamp();
 		static const char* LogLevelToString(LogLevel level);
 
