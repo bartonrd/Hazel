@@ -2,6 +2,21 @@
 
 Hazel is a 3D game engine similar to Unity, built with C++ and designed for high-performance game development.
 
+## Projects
+
+### HazelEditor (Unity-like Editor) 🎨
+A fully-featured Unity-like editor with dockable windows and a familiar interface layout:
+- **Scene Hierarchy**: Tree view of all game objects in the scene
+- **Inspector**: Property editor for selected objects with component views
+- **Console**: Real-time log viewer with filtering (Trace/Info/Warn/Error/Fatal)
+- **Scene View**: 3D scene editor with tool gizmos (Hand/Move/Rotate/Scale)
+- **Game View**: Runtime game preview viewport
+- **Asset Browser**: Project asset management with folder structure
+- **Toolbar**: Play/Pause/Stop controls for game testing
+
+### Sandbox (Basic Example)
+A minimal example application demonstrating the engine's core features.
+
 ## Features
 
 ### 1. Logging System
@@ -119,7 +134,8 @@ Event-driven architecture for handling input and system events:
 ### Build Instructions
 1. Open `Hazel.sln` in Visual Studio
 2. Build the solution (Ctrl+Shift+B)
-3. Run the Sandbox application
+3. Run the **Sandbox** application (basic example) OR
+4. Run the **HazelEditor** application (Unity-like editor interface)
 
 ### Project Structure
 ```
@@ -139,9 +155,19 @@ Hazel/
 │       │       ├── ScriptEngine.h/cpp
 │       │       └── ScriptComponent.h/cpp
 │       └── Hazel.h
-└── Sandbox/            # Example application
+├── Sandbox/            # Example application
+│   └── src/
+│       └── SandboxApp.cpp
+└── HazelEditor/        # Unity-like editor (NEW!)
     └── src/
-        └── SandboxApp.cpp
+        ├── EditorApp.cpp
+        ├── EditorLayer.h/cpp
+        └── Panels/
+            ├── Scene Hierarchy
+            ├── Inspector
+            ├── Console
+            ├── Game/Scene Views
+            └── Asset Browser
 ```
 
 ## Future Development
@@ -154,7 +180,13 @@ Hazel/
 ### Phase 2: Window and UI System ✓
 - [x] ImGui integration
 - [x] Dockable window framework
-- [ ] Full window implementation with all panels
+- [x] Full Unity-like editor interface
+- [x] Scene Hierarchy panel
+- [x] Inspector/Properties panel
+- [x] Console panel with log filtering
+- [x] Game View and Scene View panels
+- [x] Asset Browser panel
+- [x] Toolbar with Play/Pause/Stop controls
 
 ### Phase 3: 3D Rendering Foundation
 - [ ] OpenGL/DirectX rendering context
