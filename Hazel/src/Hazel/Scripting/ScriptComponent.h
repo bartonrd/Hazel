@@ -7,6 +7,11 @@
 
 namespace Hazel {
 
+#ifdef _MSC_VER
+	#pragma warning(push)
+	#pragma warning(disable: 4251) // Disable warning about STL types in DLL interface
+#endif
+
 	class HAZEL_API ScriptComponent
 	{
 	public:
@@ -26,5 +31,9 @@ namespace Hazel {
 		std::string m_ClassName;
 		std::shared_ptr<ScriptInstance> m_Instance;
 	};
+
+#ifdef _MSC_VER
+	#pragma warning(pop)
+#endif
 
 }

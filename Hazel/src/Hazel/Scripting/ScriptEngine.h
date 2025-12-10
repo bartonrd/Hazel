@@ -9,6 +9,11 @@ namespace Hazel {
 	// Forward declarations
 	class ScriptInstance;
 
+#ifdef _MSC_VER
+	#pragma warning(push)
+	#pragma warning(disable: 4251) // Disable warning about STL types in DLL interface
+#endif
+
 	class HAZEL_API ScriptEngine
 	{
 	public:
@@ -54,5 +59,9 @@ namespace Hazel {
 		std::string m_ClassName;
 		void* m_MonoObject = nullptr;  // Would be MonoObject* with Mono
 	};
+
+#ifdef _MSC_VER
+	#pragma warning(pop)
+#endif
 
 }

@@ -6,6 +6,11 @@
 
 namespace Hazel {
 
+#ifdef _MSC_VER
+	#pragma warning(push)
+	#pragma warning(disable: 4251) // Disable warning about STL types in DLL interface
+#endif
+
 	class HAZEL_API LayerStack
 	{
 	public:
@@ -31,5 +36,9 @@ namespace Hazel {
 		std::vector<Layer*> m_Layers;
 		unsigned int m_LayerInsertIndex = 0;
 	};
+
+#ifdef _MSC_VER
+	#pragma warning(pop)
+#endif
 
 }

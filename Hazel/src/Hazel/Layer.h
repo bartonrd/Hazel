@@ -6,6 +6,11 @@
 
 namespace Hazel {
 
+#ifdef _MSC_VER
+	#pragma warning(push)
+	#pragma warning(disable: 4251) // Disable warning about STL types in DLL interface
+#endif
+
 	class HAZEL_API Layer
 	{
 	public:
@@ -23,5 +28,9 @@ namespace Hazel {
 	protected:
 		std::string m_DebugName;
 	};
+
+#ifdef _MSC_VER
+	#pragma warning(pop)
+#endif
 
 }

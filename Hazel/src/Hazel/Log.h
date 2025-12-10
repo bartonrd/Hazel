@@ -24,6 +24,11 @@ namespace Hazel {
 		std::string timestamp;
 	};
 
+#ifdef _MSC_VER
+	#pragma warning(push)
+	#pragma warning(disable: 4251) // Disable warning about STL types in DLL interface
+#endif
+
 	class HAZEL_API Log
 	{
 	public:
@@ -48,6 +53,10 @@ namespace Hazel {
 		static std::vector<LogMessage> s_Messages;
 		static bool s_Initialized;
 	};
+
+#ifdef _MSC_VER
+	#pragma warning(pop)
+#endif
 
 }
 
