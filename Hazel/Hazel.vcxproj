@@ -18,6 +18,33 @@
     <ClCompile Include="src\Hazel\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\Hazel\Scripting\ScriptEngine.cpp" />
     <ClCompile Include="src\Hazel\Scripting\ScriptComponent.cpp" />
+    <ClCompile Include="..\vendor\imgui\imgui.cpp" />
+    <ClCompile Include="..\vendor\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\vendor\imgui\imgui_tables.cpp" />
+    <ClCompile Include="..\vendor\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="..\vendor\imgui\backends\imgui_impl_glfw.cpp" />
+    <ClCompile Include="..\vendor\imgui\backends\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="..\vendor\glfw\src\context.c" />
+    <ClCompile Include="..\vendor\glfw\src\init.c" />
+    <ClCompile Include="..\vendor\glfw\src\input.c" />
+    <ClCompile Include="..\vendor\glfw\src\monitor.c" />
+    <ClCompile Include="..\vendor\glfw\src\platform.c" />
+    <ClCompile Include="..\vendor\glfw\src\vulkan.c" />
+    <ClCompile Include="..\vendor\glfw\src\window.c" />
+    <ClCompile Include="..\vendor\glfw\src\egl_context.c" />
+    <ClCompile Include="..\vendor\glfw\src\osmesa_context.c" />
+    <ClCompile Include="..\vendor\glfw\src\null_init.c" />
+    <ClCompile Include="..\vendor\glfw\src\null_joystick.c" />
+    <ClCompile Include="..\vendor\glfw\src\null_monitor.c" />
+    <ClCompile Include="..\vendor\glfw\src\null_window.c" />
+    <ClCompile Include="..\vendor\glfw\src\win32_init.c" />
+    <ClCompile Include="..\vendor\glfw\src\win32_joystick.c" />
+    <ClCompile Include="..\vendor\glfw\src\win32_module.c" />
+    <ClCompile Include="..\vendor\glfw\src\win32_monitor.c" />
+    <ClCompile Include="..\vendor\glfw\src\win32_thread.c" />
+    <ClCompile Include="..\vendor\glfw\src\win32_time.c" />
+    <ClCompile Include="..\vendor\glfw\src\win32_window.c" />
+    <ClCompile Include="..\vendor\glfw\src\wgl_context.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Hazel\Application.h" />
@@ -77,12 +104,14 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>HZ_PLATFORM_WINDOWS;HZ_BUILD_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HZ_PLATFORM_WINDOWS;HZ_BUILD_DLL;_GLFW_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)vendor\imgui;$(SolutionDir)vendor\imgui\backends;$(SolutionDir)vendor\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -91,14 +120,16 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>HZ_PLATFORM_WINDOWS;HZ_BUILD_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>HZ_PLATFORM_WINDOWS;HZ_BUILD_DLL;_GLFW_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)vendor\imgui;$(SolutionDir)vendor\imgui\backends;$(SolutionDir)vendor\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

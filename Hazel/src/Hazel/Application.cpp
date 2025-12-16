@@ -1,11 +1,18 @@
 #include "Application.h"
 #include "Log.h"
 #include "Scripting/ScriptEngine.h"
+#include "ImGui/ImGuiLayer.h"
 #include <iostream>
+#include <GLFW/glfw3.h>
 
 namespace Hazel
 {
 	Application* Application::s_Instance = nullptr;
+
+	static void GLFWErrorCallback(int error, const char* description)
+	{
+		HZ_ERROR("GLFW Error ({0}): {1}", error, description);
+	}
 
 	Application::Application()
 	{
@@ -14,6 +21,34 @@ namespace Hazel
 		// Initialize logging system
 		Log::Init();
 		HZ_INFO("Hazel Engine Starting...");
+
+		// Initialize GLFW
+		if (!glfwInit())
+		{
+			HZ_FATAL("Failed to initialize GLFW!");
+			return;
+		}
+
+		glfwSetErrorCallback(GLFWErrorCallback);
+
+		// Set OpenGL version hints
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+		// Create window
+		m_Window = glfwCreateWindow(1920, 1080, "Hazel Editor", nullptr, nullptr);
+		if (!m_Window)
+		{
+			HZ_FATAL("Failed to create GLFW window!");
+			glfwTerminate();
+			return;
+		}
+
+		glfwMakeContextCurrent(m_Window);
+		glfwSwapInterval(1); // Enable vsync
+
+		HZ_INFO("GLFW Window created successfully");
 
 		// Initialize scripting engine
 		ScriptEngine::Init();
@@ -24,6 +59,13 @@ namespace Hazel
 		// Shutdown scripting engine
 		ScriptEngine::Shutdown();
 
+		// Cleanup GLFW
+		if (m_Window)
+		{
+			glfwDestroyWindow(m_Window);
+		}
+		glfwTerminate();
+
 		// Shutdown logging
 		Log::Shutdown();
 	}
@@ -31,26 +73,29 @@ namespace Hazel
 	void Application::Run()
 	{
 		HZ_INFO("Application::Run() - Main loop started");
-		HZ_INFO("Note: This is a console-based simulation showing editor structure");
-		HZ_INFO("For full GUI rendering, integrate ImGui library with a rendering backend");
-		HZ_INFO("");
 
-		int frameCount = 0;
-		const int maxFrames = 5; // Run a few frames to show the editor is active
-
-		while (m_Running && frameCount < maxFrames)
+		// Find ImGuiLayer
+		ImGuiLayer* imguiLayer = nullptr;
+		for (Layer* layer : m_LayerStack)
 		{
-			// Calculate delta time (simulated)
-			float deltaTime = 0.016f; // ~60 FPS
-			m_LastFrameTime += deltaTime;
+			imguiLayer = dynamic_cast<ImGuiLayer*>(layer);
+			if (imguiLayer)
+				break;
+		}
 
-			// Frame separator for clarity
-			if (frameCount > 0)
-			{
-				HZ_INFO("========================================");
-				HZ_INFO("Frame " + std::to_string(frameCount + 1) + " - Editor Update");
-				HZ_INFO("========================================");
-			}
+		while (m_Running && !glfwWindowShouldClose(m_Window))
+		{
+			// Calculate delta time
+			float time = (float)glfwGetTime();
+			float deltaTime = time - m_LastFrameTime;
+			m_LastFrameTime = time;
+
+			// Poll events
+			glfwPollEvents();
+
+			// Clear the screen
+			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT);
 
 			// Update all layers
 			for (Layer* layer : m_LayerStack)
@@ -58,22 +103,25 @@ namespace Hazel
 				layer->OnUpdate(deltaTime);
 			}
 
+			// Start ImGui frame
+			if (imguiLayer)
+				imguiLayer->Begin();
+
 			// Render ImGui for all layers
 			for (Layer* layer : m_LayerStack)
 			{
 				layer->OnImGuiRender();
 			}
 
-			frameCount++;
-			
-			// In a real implementation, this would be:
-			// - Poll events from window system
-			// - Swap buffers
-			// - Sleep to maintain target framerate
+			// End ImGui frame
+			if (imguiLayer)
+				imguiLayer->End();
+
+			// Swap buffers
+			glfwSwapBuffers(m_Window);
 		}
 
-		HZ_INFO("");
-		HZ_INFO("Application::Run() - Main loop ended after " + std::to_string(frameCount) + " frames");
+		HZ_INFO("Application::Run() - Main loop ended");
 	}
 
 	void Application::PushLayer(Layer* layer)

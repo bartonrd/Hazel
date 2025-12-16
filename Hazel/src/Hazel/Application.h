@@ -4,6 +4,8 @@
 #include "Events/Event.h"
 #include <memory>
 
+struct GLFWwindow;
+
 namespace Hazel
 {
 	class HAZEL_API Application
@@ -18,11 +20,13 @@ namespace Hazel
 		void PushOverlay(Layer* overlay);
 
 		static Application& Get() { return *s_Instance; }
+		GLFWwindow* GetWindow() const { return m_Window; }
 
 	private:
 		LayerStack m_LayerStack;
 		bool m_Running = true;
 		float m_LastFrameTime = 0.0f;
+		GLFWwindow* m_Window = nullptr;
 
 		static Application* s_Instance;
 	};

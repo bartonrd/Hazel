@@ -1,8 +1,10 @@
 #include "ImGuiLayer.h"
 #include "../Log.h"
-
-// Note: ImGui integration requires ImGui library
-// This is a placeholder implementation showing the structure
+#include "../Application.h"
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+#include <GLFW/glfw3.h>
 
 namespace Hazel {
 
@@ -13,54 +15,79 @@ namespace Hazel {
 
 	void ImGuiLayer::OnAttach()
 	{
-		HZ_INFO("ImGuiLayer::OnAttach - Dockable windows system initialized");
+		HZ_INFO("ImGuiLayer::OnAttach - Initializing ImGui");
 		
-		// ImGui initialization would happen here
-		// ImGui::CreateContext();
-		// ImGuiIO& io = ImGui::GetIO();
-		// io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-		// io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-		// io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+		// Setup Dear ImGui context
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
+		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
+
+		// Setup Dear ImGui style - Dark theme like Unity
+		ImGui::StyleColorsDark();
+		
+		// When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
+		ImGuiStyle& style = ImGui::GetStyle();
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			style.WindowRounding = 0.0f;
+			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+		}
+
+		// Setup Platform/Renderer backends
+		GLFWwindow* window = Application::Get().GetWindow();
+		ImGui_ImplGlfw_InitForOpenGL(window, true);
+		ImGui_ImplOpenGL3_Init("#version 330");
+
+		HZ_INFO("ImGui initialized successfully");
 	}
 
 	void ImGuiLayer::OnDetach()
 	{
 		HZ_INFO("ImGuiLayer::OnDetach");
 		
-		// ImGui cleanup would happen here
-		// ImGui::DestroyContext();
+		// Cleanup
+		ImGui_ImplOpenGL3_Shutdown();
+		ImGui_ImplGlfw_Shutdown();
+		ImGui::DestroyContext();
 	}
 
 	void ImGuiLayer::OnImGuiRender()
 	{
-		// Dockable window rendering would happen here
-		// Example windows:
-		// - Scene Hierarchy
-		// - Inspector/Properties
-		// - Console (showing log messages)
-		// - Asset Browser
-		// - Game View
-		// - Scene View
+		// This is called by the application for each layer
+		// The Begin/End methods are called by the application main loop
 	}
 
 	void ImGuiLayer::Begin()
 	{
-		// ImGui new frame would be started here
-		// ImGui::NewFrame();
+		// Start the Dear ImGui frame
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
 	}
 
 	void ImGuiLayer::End()
 	{
-		// ImGui rendering would happen here
-		// ImGui::Render();
-		// ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-		
-		// Update and render additional platform windows
-		// if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-		// {
-		//     ImGui::UpdatePlatformWindows();
-		//     ImGui::RenderPlatformWindowsDefault();
-		// }
+		// Rendering
+		ImGuiIO& io = ImGui::GetIO();
+		GLFWwindow* window = Application::Get().GetWindow();
+		int display_w, display_h;
+		glfwGetFramebufferSize(window, &display_w, &display_h);
+		io.DisplaySize = ImVec2((float)display_w, (float)display_h);
+
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+		// Update and Render additional Platform Windows
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			GLFWwindow* backup_current_context = glfwGetCurrentContext();
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
+			glfwMakeContextCurrent(backup_current_context);
+		}
 	}
 
 }
