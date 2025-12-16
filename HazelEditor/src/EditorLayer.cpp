@@ -46,8 +46,11 @@ namespace HazelEditor {
 	{
 		// Draw the main menu bar at the top (outside dockspace)
 		DrawMenuBar();
+		
+		// Draw the static toolbar below the menu bar (outside dockspace)
+		DrawToolbar();
 
-		// Create a fullscreen dockspace
+		// Create a fullscreen dockspace that starts below the toolbar
 		static bool dockspaceOpen = true;
 		static bool opt_fullscreen_persistent = true;
 		bool opt_fullscreen = opt_fullscreen_persistent;
@@ -59,6 +62,8 @@ namespace HazelEditor {
 		if (opt_fullscreen)
 		{
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
+			// Position the dockspace below the menu bar and toolbar
+			// The menu bar and toolbar take up space from viewport->WorkPos
 			ImGui::SetNextWindowPos(viewport->WorkPos);
 			ImGui::SetNextWindowSize(viewport->WorkSize);
 			ImGui::SetNextWindowViewport(viewport->ID);
@@ -96,7 +101,6 @@ namespace HazelEditor {
 		ImGui::End();
 
 		// Draw all the editor panels - they will dock into the dockspace
-		DrawToolbar();
 		DrawSceneHierarchy();
 		DrawInspector();
 		DrawConsole();
@@ -189,13 +193,37 @@ namespace HazelEditor {
 
 	void EditorLayer::DrawToolbar()
 	{
-		ImGui::Begin("Toolbar");
+		// Create a static toolbar window below the main menu bar
+		// This toolbar is not dockable and cannot be moved
+		ImGuiViewport* viewport = ImGui::GetMainViewport();
+		
+		// Calculate position: below the menu bar
+		ImVec2 toolbarPos = viewport->WorkPos;
+		
+		// Calculate size: full width, fixed height
+		float toolbarHeight = 40.0f;
+		ImVec2 toolbarSize = ImVec2(viewport->WorkSize.x, toolbarHeight);
+		
+		// Set window properties to make it static and non-dockable
+		ImGui::SetNextWindowPos(toolbarPos);
+		ImGui::SetNextWindowSize(toolbarSize);
+		ImGui::SetNextWindowViewport(viewport->ID);
+		
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | 
+		                                 ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | 
+		                                 ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDocking;
+		
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(4.0f, 4.0f));
+		
+		ImGui::Begin("##Toolbar", nullptr, window_flags);
 		
 		// Center the buttons
 		float buttonWidth = 50.0f;
 		float spacing = ImGui::GetStyle().ItemSpacing.x;
 		float totalWidth = (buttonWidth * 3) + (spacing * 2);
 		ImGui::SetCursorPosX((ImGui::GetWindowWidth() - totalWidth) * 0.5f);
+		ImGui::SetCursorPosY((toolbarHeight - ImGui::GetFrameHeight()) * 0.5f);
 		
 		if (ImGui::Button(m_IsPlaying ? "Stop" : "Play", ImVec2(buttonWidth, 0)))
 		{
@@ -220,6 +248,7 @@ namespace HazelEditor {
 		}
 		
 		ImGui::End();
+		ImGui::PopStyleVar(2);
 	}
 
 	void EditorLayer::DrawSceneHierarchy()
