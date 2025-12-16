@@ -5,19 +5,16 @@
 namespace Hazel {
 
 	Renderer::SceneData* Renderer::s_SceneData = nullptr;
+	static bool s_RendererInitialized = false;
 
 	void Renderer::Init()
 	{
+		if (s_RendererInitialized)
+			return;
+
 		s_SceneData = new SceneData();
+		s_RendererInitialized = true;
 		
-		// Enable depth testing
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LESS);
-
-		// Enable blending
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 		HZ_INFO("Renderer initialized");
 	}
 
@@ -25,11 +22,22 @@ namespace Hazel {
 	{
 		delete s_SceneData;
 		s_SceneData = nullptr;
+		s_RendererInitialized = false;
 	}
 
 	void Renderer::BeginScene(const Camera& camera)
 	{
+		// Lazy initialization
+		if (!s_RendererInitialized)
+			Init();
+
 		s_SceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
+		
+		// Set up OpenGL state for 3D rendering (done each frame)
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
 
 	void Renderer::EndScene()

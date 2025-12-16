@@ -52,9 +52,6 @@ namespace Hazel
 
 		HZ_INFO("GLFW Window created successfully");
 
-		// Initialize renderer
-		Renderer::Init();
-
 		// Initialize scripting engine
 		ScriptEngine::Init();
 	}
