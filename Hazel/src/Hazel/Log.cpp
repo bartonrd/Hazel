@@ -76,7 +76,11 @@ namespace Hazel {
 
 		std::stringstream ss;
 		std::tm tm;
-		localtime_s(&tm, &time);
+		#ifdef _WIN32
+			localtime_s(&tm, &time);
+		#else
+			localtime_r(&time, &tm);
+		#endif
 		ss << std::put_time(&tm, "%H:%M:%S");
 		ss << '.' << std::setfill('0') << std::setw(3) << ms.count();
 		return ss.str();

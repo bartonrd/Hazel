@@ -11,7 +11,8 @@ namespace Hazel
 
 	static void GLFWErrorCallback(int error, const char* description)
 	{
-		HZ_ERROR("GLFW Error ({0}): {1}", error, description);
+		std::string msg = "GLFW Error (" + std::to_string(error) + "): " + std::string(description);
+		HZ_ERROR(msg);
 	}
 
 	Application::Application()
