@@ -1,11 +1,10 @@
 #include "MeshGenerator.h"
 #include <cmath>
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-
 namespace Hazel {
+
+	// Use a portable definition of PI
+	constexpr double PI = 3.14159265358979323846;
 
 	MeshData MeshGenerator::CreateCube(float size)
 	{
@@ -73,13 +72,13 @@ namespace Hazel {
 		// Generate sphere using UV sphere method
 		for (int lat = 0; lat <= segments; lat++)
 		{
-			float theta = lat * M_PI / segments;
+			float theta = lat * PI / segments;
 			float sinTheta = sin(theta);
 			float cosTheta = cos(theta);
 
 			for (int lon = 0; lon <= segments; lon++)
 			{
-				float phi = lon * 2.0f * M_PI / segments;
+				float phi = lon * 2.0f * PI / segments;
 				float sinPhi = sin(phi);
 				float cosPhi = cos(phi);
 
@@ -129,7 +128,7 @@ namespace Hazel {
 		// Generate cylinder portion
 		for (int i = 0; i <= segments; i++)
 		{
-			float angle = i * 2.0f * M_PI / segments;
+			float angle = i * 2.0f * PI / segments;
 			float x = cos(angle);
 			float z = sin(angle);
 
@@ -173,13 +172,13 @@ namespace Hazel {
 		int hemisphereSegments = segments / 2;
 		for (int lat = 0; lat <= hemisphereSegments; lat++)
 		{
-			float theta = lat * M_PI * 0.5f / hemisphereSegments;
+			float theta = lat * PI * 0.5f / hemisphereSegments;
 			float sinTheta = sin(theta);
 			float cosTheta = cos(theta);
 
 			for (int lon = 0; lon <= segments; lon++)
 			{
-				float phi = lon * 2.0f * M_PI / segments;
+				float phi = lon * 2.0f * PI / segments;
 				float sinPhi = sin(phi);
 				float cosPhi = cos(phi);
 
@@ -219,13 +218,13 @@ namespace Hazel {
 		// Generate bottom hemisphere
 		for (int lat = 0; lat <= hemisphereSegments; lat++)
 		{
-			float theta = lat * M_PI * 0.5f / hemisphereSegments;
+			float theta = lat * PI * 0.5f / hemisphereSegments;
 			float sinTheta = sin(theta);
 			float cosTheta = cos(theta);
 
 			for (int lon = 0; lon <= segments; lon++)
 			{
-				float phi = lon * 2.0f * M_PI / segments;
+				float phi = lon * 2.0f * PI / segments;
 				float sinPhi = sin(phi);
 				float cosPhi = cos(phi);
 
