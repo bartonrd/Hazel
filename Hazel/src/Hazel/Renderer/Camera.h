@@ -6,6 +6,11 @@
 
 namespace Hazel {
 
+#ifdef _MSC_VER
+	#pragma warning(push)
+	#pragma warning(disable: 4251) // Disable warning about DLL interface for private members
+#endif
+
 	class HAZEL_API Camera
 	{
 	public:
@@ -39,5 +44,9 @@ namespace Hazel {
 		glm::vec3 m_Position = { 0.0f, 0.0f, 0.0f };
 		glm::vec3 m_Rotation = { 0.0f, 0.0f, 0.0f };
 	};
+
+#ifdef _MSC_VER
+	#pragma warning(pop)
+#endif
 
 }

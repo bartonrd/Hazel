@@ -101,6 +101,11 @@ namespace Hazel {
 		unsigned int m_Stride = 0;
 	};
 
+#ifdef _MSC_VER
+	#pragma warning(push)
+	#pragma warning(disable: 4251) // Disable warning about DLL interface for private members
+#endif
+
 	class HAZEL_API VertexBuffer
 	{
 	public:
@@ -153,5 +158,9 @@ namespace Hazel {
 		std::vector<const VertexBuffer*> m_VertexBuffers;
 		const IndexBuffer* m_IndexBuffer = nullptr;
 	};
+
+#ifdef _MSC_VER
+	#pragma warning(pop)
+#endif
 
 }

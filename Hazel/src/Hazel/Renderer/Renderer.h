@@ -11,6 +11,11 @@
 
 namespace Hazel {
 
+#ifdef _MSC_VER
+	#pragma warning(push)
+	#pragma warning(disable: 4251) // Disable warning about DLL interface for private members
+#endif
+
 	class HAZEL_API Renderer
 	{
 	public:
@@ -39,5 +44,9 @@ namespace Hazel {
 
 		static SceneData* s_SceneData;
 	};
+
+#ifdef _MSC_VER
+	#pragma warning(pop)
+#endif
 
 }

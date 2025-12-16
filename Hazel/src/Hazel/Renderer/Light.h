@@ -14,6 +14,11 @@ namespace Hazel {
 		Spot = 2
 	};
 
+#ifdef _MSC_VER
+	#pragma warning(push)
+	#pragma warning(disable: 4251) // Disable warning about DLL interface for private members
+#endif
+
 	class HAZEL_API Light
 	{
 	public:
@@ -97,5 +102,9 @@ namespace Hazel {
 		float m_InnerCutOff = 12.5f;
 		float m_OuterCutOff = 17.5f;
 	};
+
+#ifdef _MSC_VER
+	#pragma warning(pop)
+#endif
 
 }

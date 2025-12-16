@@ -7,6 +7,11 @@
 
 namespace Hazel {
 
+#ifdef _MSC_VER
+	#pragma warning(push)
+	#pragma warning(disable: 4251) // Disable warning about DLL interface for private members
+#endif
+
 	class HAZEL_API Material
 	{
 	public:
@@ -37,5 +42,9 @@ namespace Hazel {
 		float m_Metallic = 0.0f;
 		float m_Roughness = 0.5f;
 	};
+
+#ifdef _MSC_VER
+	#pragma warning(pop)
+#endif
 
 }
