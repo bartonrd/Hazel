@@ -369,6 +369,9 @@ ASALocalRun/
 *.binlog
 MSBuild_Logs/
 
+# Vendor library .git directories
+vendor/**/.git
+
 # AWS SAM Build and Temporary Artifacts folder
 .aws-sam
 

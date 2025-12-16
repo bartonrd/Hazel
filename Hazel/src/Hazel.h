@@ -19,6 +19,14 @@
 #include "Hazel/Scripting/ScriptEngine.h"
 #include "Hazel/Scripting/ScriptComponent.h"
 
+// Renderer
+#include "Hazel/Renderer/Renderer.h"
+#include "Hazel/Renderer/Shader.h"
+#include "Hazel/Renderer/Buffer.h"
+#include "Hazel/Renderer/Camera.h"
+#include "Hazel/Renderer/Material.h"
+#include "Hazel/Renderer/Light.h"
+
 // ---ENTRY POINT----------------
 #include "Hazel/EntryPoint.h"
 // ------------------------------

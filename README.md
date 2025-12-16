@@ -134,6 +134,86 @@ playerScript.OnUpdate(deltaTime);
 playerScript.OnDestroy();
 ```
 
+### 5. 3D Rendering System
+Hazel includes a modern 3D rendering pipeline with support for materials and lighting:
+
+**Features:**
+- Camera system (Perspective and Orthographic projection)
+- Shader management with GLSL 3.3
+- Material system with PBR-ready properties
+- Multiple light types (Directional, Point, Spot)
+- Vertex/Index buffer management
+- Phong lighting model
+
+**Example 3D Scene:**
+```cpp
+using namespace Hazel;
+
+// Create a camera
+auto camera = std::make_shared<Camera>(Camera::ProjectionType::Perspective);
+camera->SetPerspective(45.0f, 16.0f / 9.0f, 0.1f, 100.0f);
+camera->SetPosition(glm::vec3(0.0f, 0.0f, 5.0f));
+
+// Create a cube
+float vertices[] = {
+    // positions          // normals
+    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+    // ... more vertices
+};
+
+unsigned int indices[] = {
+    0, 1, 2, 2, 3, 0,  // front face
+    // ... more indices
+};
+
+// Create vertex array
+auto vertexArray = std::make_shared<VertexArray>();
+auto vertexBuffer = std::make_shared<VertexBuffer>(vertices, sizeof(vertices));
+vertexBuffer->SetLayout({
+    { ShaderDataType::Float3, "a_Position" },
+    { ShaderDataType::Float3, "a_Normal" }
+});
+vertexArray->AddVertexBuffer(vertexBuffer.get());
+auto indexBuffer = std::make_shared<IndexBuffer>(indices, 36);
+vertexArray->SetIndexBuffer(indexBuffer.get());
+
+// Create shader with vertex and fragment source
+auto shader = std::make_shared<Shader>(vertexSrc, fragmentSrc);
+
+// Create material
+auto material = std::make_shared<Material>(shader);
+material->SetColor(glm::vec4(0.3f, 0.6f, 0.9f, 1.0f));
+material->SetShininess(32.0f);
+
+// Create directional light
+auto light = std::make_shared<DirectionalLight>();
+light->SetDirection(glm::vec3(-0.2f, -1.0f, -0.3f));
+light->SetColor(glm::vec3(1.0f, 1.0f, 1.0f));
+light->SetIntensity(1.0f);
+
+// In your update loop:
+Renderer::ClearLights();
+Renderer::AddLight(light);
+Renderer::BeginScene(*camera);
+
+glm::mat4 transform = glm::rotate(glm::mat4(1.0f), rotation, glm::vec3(0.5f, 1.0f, 0.0f));
+Renderer::Submit(vertexArray, material, transform);
+
+Renderer::EndScene();
+```
+
+**Available Light Types:**
+- `DirectionalLight` - Simulates sunlight with parallel rays
+- `PointLight` - Light source that emits in all directions with attenuation
+- `SpotLight` - Cone-shaped light with inner and outer cutoff angles
+
+**Material Properties:**
+- Color (RGBA)
+- Shininess (specular intensity)
+- Metallic (0.0 to 1.0)
+- Roughness (0.0 to 1.0)
+
 ## Architecture
 
 ### Layer System
@@ -148,6 +228,14 @@ Event-driven architecture for handling input and system events:
 - Input events (keyboard, mouse)
 - Application events (tick, update, render)
 
+### Rendering Architecture
+Modern OpenGL 3.3 Core Profile rendering:
+- Vertex Array Objects (VAO) for geometry
+- Vertex Buffer Objects (VBO) and Index Buffer Objects (IBO)
+- Shader programs with uniform management
+- Material system for shader parameters
+- Scene graph with camera and lighting
+
 ## Building the Hazel Editor
 
 ### Prerequisites
@@ -155,6 +243,7 @@ Event-driven architecture for handling input and system events:
 - **Windows 10 SDK** 
 - **C++17** or later
 - **OpenGL** support (included with Windows)
+- **GLM** (included in vendor)
 
 ### Build Instructions
 1. Open `Hazel.sln` in Visual Studio 2022
@@ -172,9 +261,10 @@ When you run HazelEditor, you will see:
 - Working hierarchy, inspector, console, and other panels
 
 ### Alternative: Run Sandbox
-For a simple console application without GUI:
+For a 3D rendering demo with rotating cube:
 1. Right-click **Sandbox** project → Set as Startup Project
 2. Build and run (F5)
+3. You'll see a blue rotating cube with Phong lighting
 
 ### Project Structure
 ```
@@ -191,6 +281,13 @@ Hazel/
 │   │   │   │   └── Event.h             # Event system
 │   │   │   ├── ImGui/
 │   │   │   │   └── ImGuiLayer.h/cpp    # ImGui integration
+│   │   │   ├── Renderer/
+│   │   │   │   ├── Renderer.h/cpp      # Main renderer
+│   │   │   │   ├── Shader.h/cpp        # Shader management
+│   │   │   │   ├── Buffer.h/cpp        # VBO/IBO/VAO
+│   │   │   │   ├── Camera.h/cpp        # Camera system
+│   │   │   │   ├── Material.h/cpp      # Material system
+│   │   │   │   └── Light.h/cpp         # Lighting system
 │   │   │   └── Scripting/
 │   │   │       ├── ScriptEngine.h/cpp
 │   │   │       └── ScriptComponent.h/cpp
@@ -212,9 +309,11 @@ Hazel/
 │   │   └── backends/
 │   │       ├── imgui_impl_glfw.cpp
 │   │       └── imgui_impl_opengl3.cpp
-│   └── glfw/               # GLFW (windowing)
-│       ├── include/
-│       └── src/
+│   ├── glfw/               # GLFW (windowing)
+│   │   ├── include/
+│   │   └── src/
+│   └── glm/                # GLM (math library)
+│       └── glm/
 ├── Scripts/                # C# game scripts
 │   └── PlayerController.cs
 └── Hazel.sln               # Visual Studio solution
@@ -250,13 +349,17 @@ Hazel/
 - [x] Toolbar (Play/Pause/Step controls)
 - [x] Menu bar (File, Edit, Assets, etc.)
 
-### Phase 3: 3D Rendering Foundation (In Progress)
+### Phase 3: 3D Rendering Foundation ✅
+- [x] Camera system (perspective and orthographic)
+- [x] Basic 3D mesh rendering
+- [x] Shader system
+- [x] Material system
+- [x] Lighting (directional, point, spot)
+- [x] Vertex/Index buffer management
+- [x] Vertex Array Objects
+- [x] Phong lighting model
 - [ ] Framebuffer rendering to viewports
-- [ ] Camera system (perspective and orthographic)
-- [ ] Basic 3D mesh rendering
-- [ ] Shader system
-- [ ] Material system
-- [ ] Lighting (directional, point, spot)
+- [ ] Texture support
 
 ### Phase 4: Scene and Entity System
 - [ ] Entity-Component-System (ECS) architecture
@@ -294,6 +397,7 @@ Hazel/
 - **GUI**: ImGui (docking branch)
 - **Windowing**: GLFW 3
 - **Graphics**: OpenGL 3.3 Core
+- **Math**: GLM (OpenGL Mathematics)
 - **Scripting**: C# (Mono runtime)
 - **Build System**: Visual Studio 2022 / MSBuild
 

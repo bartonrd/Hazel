@@ -2,6 +2,7 @@
 #include "Log.h"
 #include "Scripting/ScriptEngine.h"
 #include "ImGui/ImGuiLayer.h"
+#include "Renderer/Renderer.h"
 #include <iostream>
 #include <GLFW/glfw3.h>
 
@@ -51,12 +52,18 @@ namespace Hazel
 
 		HZ_INFO("GLFW Window created successfully");
 
+		// Initialize renderer
+		Renderer::Init();
+
 		// Initialize scripting engine
 		ScriptEngine::Init();
 	}
 
 	Application::~Application()
 	{
+		// Shutdown renderer
+		Renderer::Shutdown();
+
 		// Shutdown scripting engine
 		ScriptEngine::Shutdown();
 
@@ -102,8 +109,8 @@ namespace Hazel
 			glfwPollEvents();
 
 			// Clear the screen
-			glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT);
+			Renderer::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
+			Renderer::Clear();
 
 			// Update all layers
 			for (Layer* layer : m_LayerStack)
