@@ -17,8 +17,12 @@ The Hazel Editor provides a professional, Unity-inspired interface with **real g
 - **Menu Bar**: Complete menu system (File, Edit, Assets, GameObject, Component, Window, Help)
 
 ### GUI Features
-- **Full Docking System**: Drag and drop panels anywhere
-- **Multi-Viewport**: Detach panels to separate windows
+- **Full Docking System**: Unity-like drag and drop panels anywhere in the editor
+  - Dock windows within the main editor window
+  - Dock windows to each other (tabs or splits)
+  - Detach windows to separate OS windows
+  - Dock windows within detached windows
+- **Multi-Viewport**: Full multi-monitor support with detached panels
 - **Dark Theme**: Unity-like color scheme
 - **Keyboard Navigation**: Full keyboard support
 - **60 FPS**: Smooth VSync rendering
@@ -218,6 +222,7 @@ Hazel/
 
 ## Documentation
 
+- **[DOCKING_IMPLEMENTATION.md](DOCKING_IMPLEMENTATION.md)** - Unity-like docking system implementation
 - **[GUI_IMPLEMENTATION.md](GUI_IMPLEMENTATION.md)** - Detailed GUI implementation guide
 - **[EDITOR.md](EDITOR.md)** - Editor panel descriptions  
 - **[EDITOR_IMPLEMENTATION.md](EDITOR_IMPLEMENTATION.md)** - Original editor implementation notes

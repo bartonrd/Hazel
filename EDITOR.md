@@ -32,10 +32,47 @@ The editor features a complete Unity-like layout with all essential panels:
 └──────────────────────────────────────────────────────────────┘
 ```
 
+## Docking System
+
+The Hazel Editor features a Unity-like docking system that allows you to customize your workspace:
+
+### How to Dock Windows
+
+1. **Drag to Dock**: Click and drag any window by its title bar
+2. **Drop Indicators**: Visual guides show where the window will dock
+3. **Tab Grouping**: Drop on center to create tabs with other windows
+4. **Split Docking**: Drop on edges to split the area
+5. **Detach**: Drag windows outside to create separate OS windows
+
+### Docking Operations
+
+- **Dock within main window**: Drag panels to edges or center of other panels
+- **Dock to other panels**: Create tabs or split existing panels
+- **Detach to separate window**: Pull panels outside the main editor window
+- **Dock in detached windows**: Detached windows also support docking
+- **Undock**: Drag docked panels away to make them floating
+
+### Keyboard Modifiers
+
+- **Hold SHIFT while dragging**: Disable docking temporarily (keep window floating)
+- **Drag from window menu** (⊞ button): Undock entire docking node
+
+### Multi-Monitor Support
+
+The docking system fully supports multi-monitor setups:
+- Detach windows to secondary monitors
+- Each detached window is a separate OS window
+- Docking works the same in detached windows
+- Perfect for spreading your workspace across multiple screens
+
+For detailed information about the docking implementation, see [DOCKING_IMPLEMENTATION.md](DOCKING_IMPLEMENTATION.md).
+
 ## Panels
 
+**Note**: All panel locations are defaults. You can dock panels anywhere you prefer!
+
 ### 1. Scene Hierarchy
-**Location**: Left side  
+**Default Location**: Left side  
 **Function**: Tree view of all GameObjects in the current scene
 
 Features:
@@ -52,7 +89,7 @@ Example usage:
 ```
 
 ### 2. Inspector
-**Location**: Right side  
+**Default Location**: Right side  
 **Function**: Display and edit properties of the selected GameObject
 
 Features:
@@ -77,7 +114,7 @@ Script Component
 ```
 
 ### 3. Scene View
-**Location**: Center (main viewport)  
+**Default Location**: Center (main viewport)  
 **Function**: 3D editor view with manipulation tools
 
 Features:
@@ -95,7 +132,7 @@ Keyboard shortcuts:
 - **F**: Frame selected object
 
 ### 4. Game View
-**Location**: Center (tabbed with Scene View)
+**Default Location**: Center (tabbed with Scene View)
 **Function**: Runtime game preview
 
 Features:
@@ -105,7 +142,7 @@ Features:
 - Resolution preview options
 
 ### 5. Console
-**Location**: Bottom  
+**Default Location**: Bottom  
 **Function**: Display engine and game log messages
 
 Features:
@@ -129,7 +166,7 @@ HZ_ERROR("Failed to load texture");
 ```
 
 ### 6. Project Browser
-**Location**: Bottom (tabbed with Console)  
+**Default Location**: Bottom (tabbed with Console)  
 **Function**: Asset and file management
 
 Features:
@@ -145,7 +182,7 @@ Features:
 - Right-click context menu for operations
 
 ### 7. Toolbar
-**Location**: Top (below menu bar)  
+**Default Location**: Top (below menu bar)  
 **Function**: Play mode controls
 
 Features:
