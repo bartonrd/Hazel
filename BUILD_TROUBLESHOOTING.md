@@ -2,6 +2,30 @@
 
 ## Build Errors Fixed
 
+### Error: HazelEditor ImGui Linker Errors (LNK2019)
+
+**Errors:**
+- `LNK2019 unresolved external symbol "bool __cdecl ImGui::Begin(...)`
+- `LNK2019 unresolved external symbol "void __cdecl ImGui::End(...)`
+- `LNK2019 unresolved external symbol "bool __cdecl ImGui::Button(...)`
+- And 27+ other ImGui function linker errors
+
+**Cause:**
+HazelEditor was trying to use ImGui functions but ImGui wasn't being linked. ImGui was compiled into Hazel.dll but the symbols weren't exported, so HazelEditor couldn't find them.
+
+**Solution Applied:**
+Added ImGui source files directly to HazelEditor.vcxproj:
+- imgui.cpp, imgui_draw.cpp, imgui_tables.cpp, imgui_widgets.cpp
+- imgui_impl_glfw.cpp, imgui_impl_opengl3.cpp
+- Added opengl32.lib to linker dependencies
+- Added _CRT_SECURE_NO_WARNINGS preprocessor definition
+
+**Why This Approach:**
+ImGui is designed to be compiled directly into each project that uses it, not as a shared library. This is the recommended approach by the ImGui authors and avoids DLL export/import complexity.
+
+**Result:**
+All ImGui symbols are now available to HazelEditor and the linker errors are resolved.
+
 ### Error: GLFW Unsafe String Function Warnings (C4996)
 
 **Errors:**
