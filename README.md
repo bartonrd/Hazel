@@ -1,25 +1,45 @@
 # Hazel Game Engine
 
-Hazel is a 3D game engine similar to Unity, built with C++ and designed for high-performance game development.
+Hazel is a 3D game engine similar to Unity, built with C++ and designed for high-performance game development. It features a **fully functional graphical user interface** built with ImGui and GLFW.
 
-## Projects
+## 🎮 HazelEditor - Unity-like Editor
 
-### HazelEditor (Unity-like Editor) 🎨
-A fully-featured Unity-like editor with dockable windows and a familiar interface layout:
-- **Scene Hierarchy**: Tree view of all game objects in the scene
-- **Inspector**: Property editor for selected objects with component views
-- **Console**: Real-time log viewer with filtering (Trace/Info/Warn/Error/Fatal)
-- **Scene View**: 3D scene editor with tool gizmos (Hand/Move/Rotate/Scale)
+The Hazel Editor provides a professional, Unity-inspired interface with **real graphical windows** and interactive panels:
+
+### Core Panels
+- **Scene Hierarchy**: Interactive tree view of all game objects with selection and parent-child relationships
+- **Inspector**: Real-time property editor with drag controls for Transform (Position, Rotation, Scale) and component fields
+- **Console**: Color-coded log viewer with filters (Trace/Info/Warn/Error/Fatal) and auto-scroll
+- **Scene View**: 3D scene editor viewport with tool selection (Q/W/E/R for Hand/Move/Rotate/Scale)
 - **Game View**: Runtime game preview viewport
-- **Asset Browser**: Project asset management with folder structure
-- **Toolbar**: Play/Pause/Stop controls for game testing
+- **Asset Browser**: Project asset management with folder tree and file grid
+- **Toolbar**: Play/Pause/Step controls for game testing
+- **Menu Bar**: Complete menu system (File, Edit, Assets, GameObject, Component, Window, Help)
 
-### Sandbox (Basic Example)
-A minimal example application demonstrating the engine's core features.
+### GUI Features
+- **Full Docking System**: Drag and drop panels anywhere
+- **Multi-Viewport**: Detach panels to separate windows
+- **Dark Theme**: Unity-like color scheme
+- **Keyboard Navigation**: Full keyboard support
+- **60 FPS**: Smooth VSync rendering
+- **1920x1080**: Default window resolution
 
-## Features
+### Projects
 
-### 1. Logging System
+**HazelEditor**: The main Unity-like editor application with GUI  
+**Sandbox**: Basic example demonstrating engine features  
+
+## 🚀 Features
+
+### 1. Real GUI Interface (NEW!)
+Built with ImGui and GLFW:
+- **GLFW Window System**: Native OpenGL windows with event handling
+- **ImGui Rendering**: Immediate mode GUI with docking support
+- **OpenGL 3.3**: Core Profile for modern graphics
+- **Interactive Widgets**: Buttons, sliders, tree views, text inputs, drag controls
+- **Event Handling**: Mouse clicks, keyboard input, window events
+
+### 2. Logging System
 The engine includes a comprehensive logging system with multiple log levels:
 - **Trace**: Detailed diagnostic information
 - **Info**: General informational messages
@@ -36,7 +56,7 @@ HZ_ERROR("Error loading asset");
 HZ_FATAL("Critical system failure");
 ```
 
-### 2. Modular Dockable Windows
+### 3. Modular Dockable Windows
 Built on ImGui, Hazel provides a flexible docking system for editor windows:
 - **Scene Hierarchy**: View and manage scene objects
 - **Inspector/Properties**: Edit component properties
@@ -51,7 +71,7 @@ The ImGui integration supports:
 - Customizable layouts
 - Persistent window configurations
 
-### 3. C# Scripting Support
+### 4. C# Scripting Support
 Hazel integrates the Mono runtime for C# scripting:
 
 **Features:**
@@ -124,98 +144,168 @@ Event-driven architecture for handling input and system events:
 - Input events (keyboard, mouse)
 - Application events (tick, update, render)
 
-## Building
+## Building the Hazel Editor
 
 ### Prerequisites
-- Visual Studio 2022 (v143 toolset)
-- Windows 10 SDK
-- C++17 or later
+- **Visual Studio 2022** (v143 toolset)
+- **Windows 10 SDK** 
+- **C++17** or later
+- **OpenGL** support (included with Windows)
 
 ### Build Instructions
-1. Open `Hazel.sln` in Visual Studio
-2. Build the solution (Ctrl+Shift+B)
-3. Run the **Sandbox** application (basic example) OR
-4. Run the **HazelEditor** application (Unity-like editor interface)
+1. Open `Hazel.sln` in Visual Studio 2022
+2. Set **HazelEditor** as the startup project (Right-click → Set as Startup Project)
+3. Select **Debug|x64** or **Release|x64** configuration
+4. Build the solution (Ctrl+Shift+B)
+5. Run the editor (F5 or Ctrl+F5)
+
+### Expected Output
+When you run HazelEditor, you will see:
+- A 1920x1080 window titled "Hazel Editor"
+- Full Unity-like interface with interactive panels
+- Dark theme matching Unity's design
+- Dockable panels that can be arranged freely
+- Working hierarchy, inspector, console, and other panels
+
+### Alternative: Run Sandbox
+For a simple console application without GUI:
+1. Right-click **Sandbox** project → Set as Startup Project
+2. Build and run (F5)
 
 ### Project Structure
 ```
 Hazel/
-├── Hazel/              # Engine core
-│   └── src/
-│       ├── Hazel/
-│       │   ├── Application.h/cpp
-│       │   ├── Log.h/cpp
-│       │   ├── Layer.h/cpp
-│       │   ├── LayerStack.h/cpp
-│       │   ├── Events/
-│       │   │   └── Event.h
-│       │   ├── ImGui/
-│       │   │   └── ImGuiLayer.h/cpp
-│       │   └── Scripting/
-│       │       ├── ScriptEngine.h/cpp
-│       │       └── ScriptComponent.h/cpp
-│       └── Hazel.h
-├── Sandbox/            # Example application
-│   └── src/
-│       └── SandboxApp.cpp
-└── HazelEditor/        # Unity-like editor (NEW!)
-    └── src/
-        ├── EditorApp.cpp
-        ├── EditorLayer.h/cpp
-        └── Panels/
-            ├── Scene Hierarchy
-            ├── Inspector
-            ├── Console
-            ├── Game/Scene Views
-            └── Asset Browser
+├── Hazel/                  # Engine core (DLL)
+│   ├── src/
+│   │   ├── Hazel/
+│   │   │   ├── Application.h/cpp      # GLFW window & main loop
+│   │   │   ├── Log.h/cpp               # Logging system
+│   │   │   ├── Layer.h/cpp             # Layer base class
+│   │   │   ├── LayerStack.h/cpp        # Layer management
+│   │   │   ├── Core.h                  # Core macros (HAZEL_API)
+│   │   │   ├── Events/
+│   │   │   │   └── Event.h             # Event system
+│   │   │   ├── ImGui/
+│   │   │   │   └── ImGuiLayer.h/cpp    # ImGui integration
+│   │   │   └── Scripting/
+│   │   │       ├── ScriptEngine.h/cpp
+│   │   │       └── ScriptComponent.h/cpp
+│   │   └── Hazel.h                     # Main include file
+│   └── Hazel.vcxproj                   # VS project with ImGui/GLFW
+├── HazelEditor/            # Unity-like editor (EXE)
+│   ├── src/
+│   │   ├── EditorApp.cpp               # Editor entry point
+│   │   └── EditorLayer.h/cpp           # All GUI panels
+│   └── HazelEditor.vcxproj
+├── Sandbox/                # Basic example (EXE)
+│   ├── src/
+│   │   └── SandboxApp.cpp
+│   └── Sandbox.vcxproj
+├── vendor/                 # Third-party libraries
+│   ├── imgui/              # Dear ImGui (GUI)
+│   │   ├── imgui.cpp
+│   │   ├── imgui.h
+│   │   └── backends/
+│   │       ├── imgui_impl_glfw.cpp
+│   │       └── imgui_impl_opengl3.cpp
+│   └── glfw/               # GLFW (windowing)
+│       ├── include/
+│       └── src/
+├── Scripts/                # C# game scripts
+│   └── PlayerController.cs
+└── Hazel.sln               # Visual Studio solution
 ```
+
+## Documentation
+
+- **[GUI_IMPLEMENTATION.md](GUI_IMPLEMENTATION.md)** - Detailed GUI implementation guide
+- **[EDITOR.md](EDITOR.md)** - Editor panel descriptions  
+- **[EDITOR_IMPLEMENTATION.md](EDITOR_IMPLEMENTATION.md)** - Original editor implementation notes
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Engine architecture overview
+- **[DEVELOPER_GUIDE.md](DEVELOPER_GUIDE.md)** - Developer guide
 
 ## Future Development
 
-### Phase 1: Core Infrastructure ✓
+### Phase 1: Core Infrastructure ✅
 - [x] Logging system
 - [x] Event system
 - [x] Layer system
 
-### Phase 2: Window and UI System ✓
-- [x] ImGui integration
-- [x] Dockable window framework
-- [x] Full Unity-like editor interface
-- [x] Scene Hierarchy panel
-- [x] Inspector/Properties panel
-- [x] Console panel with log filtering
+### Phase 2: Window and GUI System ✅
+- [x] GLFW window creation (1920x1080)
+- [x] OpenGL 3.3 context setup
+- [x] ImGui integration with backends
+- [x] Docking system
+- [x] Full Unity-like interface
+- [x] Scene Hierarchy panel (tree view with selection)
+- [x] Inspector panel (transform drag controls)
+- [x] Console panel (color-coded, filtered logging)
 - [x] Game View and Scene View panels
-- [x] Asset Browser panel
-- [x] Toolbar with Play/Pause/Stop controls
+- [x] Asset Browser panel (folder tree + file grid)
+- [x] Toolbar (Play/Pause/Step controls)
+- [x] Menu bar (File, Edit, Assets, etc.)
 
-### Phase 3: 3D Rendering Foundation
-- [ ] OpenGL/DirectX rendering context
+### Phase 3: 3D Rendering Foundation (In Progress)
+- [ ] Framebuffer rendering to viewports
 - [ ] Camera system (perspective and orthographic)
 - [ ] Basic 3D mesh rendering
 - [ ] Shader system
 - [ ] Material system
+- [ ] Lighting (directional, point, spot)
 
 ### Phase 4: Scene and Entity System
 - [ ] Entity-Component-System (ECS) architecture
 - [ ] Scene graph for 3D objects
-- [ ] Transform components (position, rotation, scale)
-- [ ] Scene serialization
+- [ ] Component serialization
+- [ ] Scene save/load system
+- [ ] Prefab system
 
-### Phase 5: C# Scripting Support ✓
+### Phase 5: Editor Advanced Features
+- [ ] Gizmos for transform manipulation (ImGuizmo)
+- [ ] 3D object picking/selection
+- [ ] Play mode with state save/restore
+- [ ] Undo/Redo system
+- [ ] Asset importing (FBX, OBJ, PNG, etc.)
+- [ ] Drag-and-drop support
+
+### Phase 6: C# Scripting Enhancement
 - [x] Basic scripting framework
-- [x] Script component system
+- [x] Script component system  
 - [ ] Full Mono runtime integration
-- [ ] Script hot-reloading implementation
-- [ ] Complete C++ to C# interop layer
+- [ ] Script hot-reloading
+- [ ] Complete C++ to C# interop
+- [ ] Script debugging support
 
-### Phase 6: Editor Features
-- [ ] Gizmos for transform manipulation
-- [ ] Object picking/selection
-- [ ] Asset browser
-- [ ] Play/pause/stop controls
+### Phase 7: Advanced Features
+- [ ] Animation system
+- [ ] Particle effects
+- [ ] Physics integration (PhysX)
+- [ ] Audio system
+- [ ] Profiler and performance tools
+
+## Tech Stack
+
+- **Language**: C++17
+- **GUI**: ImGui (docking branch)
+- **Windowing**: GLFW 3
+- **Graphics**: OpenGL 3.3 Core
+- **Scripting**: C# (Mono runtime)
+- **Build System**: Visual Studio 2022 / MSBuild
 
 ## Contributing
-This is a demonstration project showing the foundational architecture of a 3D game engine. Contributions are welcome!
+This is a demonstration project showing the architecture of a Unity-like game engine. Contributions are welcome!
 
 ## License
 MIT License - see LICENSE file for details
+
+## Screenshots
+
+The Hazel Editor features a professional Unity-like interface:
+- **Dockable panels** that can be arranged freely
+- **Interactive hierarchy** with tree nodes and selection
+- **Property inspector** with drag controls
+- **Filtered console** with color-coded messages
+- **Multiple viewports** for scene and game views
+- **Asset browser** with folder navigation
+
+*Build and run the HazelEditor project to see the full interface!*
