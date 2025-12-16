@@ -44,10 +44,57 @@ namespace HazelEditor {
 
 	void EditorLayer::OnImGuiRender()
 	{
-		// Note: If ImGui docking is available, we could use a dockspace here
-		// For now, we'll use separate windows that can be moved around
-		
+		// Create a fullscreen dockspace
+		static bool dockspaceOpen = true;
+		static bool opt_fullscreen_persistant = true;
+		bool opt_fullscreen = opt_fullscreen_persistant;
+		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+
+		// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
+		// because it would be confusing to have two docking targets within each others.
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+		if (opt_fullscreen)
+		{
+			ImGuiViewport* viewport = ImGui::GetMainViewport();
+			ImGui::SetNextWindowPos(viewport->WorkPos);
+			ImGui::SetNextWindowSize(viewport->WorkSize);
+			ImGui::SetNextWindowViewport(viewport->ID);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+			window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+			window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+		}
+
+		// When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
+		// and handle the pass-thru hole, so we ask Begin() to not render a background.
+		if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
+			window_flags |= ImGuiWindowFlags_NoBackground;
+
+		// Important: note that we proceed even if Begin() returns false (aka window is collapsed).
+		// This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
+		// all active windows docked into it will lose their parent and become undocked.
+		// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
+		// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+		ImGui::Begin("DockSpace Demo", &dockspaceOpen, window_flags);
+		ImGui::PopStyleVar();
+
+		if (opt_fullscreen)
+			ImGui::PopStyleVar(2);
+
+		// DockSpace
+		ImGuiIO& io = ImGui::GetIO();
+		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
+		{
+			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+		}
+
 		DrawMenuBar();
+		
+		ImGui::End();
+
+		// Draw all the editor panels - they will dock into the dockspace
 		DrawToolbar();
 		DrawSceneHierarchy();
 		DrawInspector();
@@ -59,92 +106,97 @@ namespace HazelEditor {
 
 	void EditorLayer::DrawMenuBar()
 	{
-		// Create a separate window for the menu bar
-		ImGui::BeginMainMenuBar();
-		
-		if (ImGui::BeginMenu("File"))
+		// Create menu bar within the dockspace window
+		if (ImGui::BeginMenuBar())
 		{
-			if (ImGui::MenuItem("New Scene", "Ctrl+N")) {}
-			if (ImGui::MenuItem("Open Scene", "Ctrl+O")) {}
-			if (ImGui::MenuItem("Save", "Ctrl+S")) {}
-			if (ImGui::MenuItem("Save As...", "Ctrl+Shift+S")) {}
-			ImGui::Separator();
-			if (ImGui::MenuItem("Exit")) {}
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu("Edit"))
-		{
-			if (ImGui::MenuItem("Undo", "Ctrl+Z")) {}
-			if (ImGui::MenuItem("Redo", "Ctrl+Y")) {}
-			ImGui::Separator();
-			if (ImGui::MenuItem("Cut", "Ctrl+X")) {}
-			if (ImGui::MenuItem("Copy", "Ctrl+C")) {}
-			if (ImGui::MenuItem("Paste", "Ctrl+V")) {}
-			if (ImGui::MenuItem("Duplicate", "Ctrl+D")) {}
-			if (ImGui::MenuItem("Delete", "Del")) {}
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu("Assets"))
-		{
-			if (ImGui::MenuItem("Create")) {}
-			if (ImGui::MenuItem("Import New Asset...")) {}
-			if (ImGui::MenuItem("Refresh", "Ctrl+R")) {}
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu("GameObject"))
-		{
-			if (ImGui::MenuItem("Create Empty", "Ctrl+Shift+N")) {}
-			if (ImGui::BeginMenu("3D Object"))
+			if (ImGui::BeginMenu("File"))
 			{
-				if (ImGui::MenuItem("Cube")) {}
-				if (ImGui::MenuItem("Sphere")) {}
-				if (ImGui::MenuItem("Capsule")) {}
-				if (ImGui::MenuItem("Cylinder")) {}
-				if (ImGui::MenuItem("Plane")) {}
+				if (ImGui::MenuItem("New Scene", "Ctrl+N")) {}
+				if (ImGui::MenuItem("Open Scene", "Ctrl+O")) {}
+				if (ImGui::MenuItem("Save", "Ctrl+S")) {}
+				if (ImGui::MenuItem("Save As...", "Ctrl+Shift+S")) {}
+				ImGui::Separator();
+				if (ImGui::MenuItem("Exit")) {}
 				ImGui::EndMenu();
 			}
-			if (ImGui::MenuItem("Camera")) {}
-			if (ImGui::BeginMenu("Light"))
+			if (ImGui::BeginMenu("Edit"))
 			{
-				if (ImGui::MenuItem("Directional Light")) {}
-				if (ImGui::MenuItem("Point Light")) {}
-				if (ImGui::MenuItem("Spot Light")) {}
+				if (ImGui::MenuItem("Undo", "Ctrl+Z")) {}
+				if (ImGui::MenuItem("Redo", "Ctrl+Y")) {}
+				ImGui::Separator();
+				if (ImGui::MenuItem("Cut", "Ctrl+X")) {}
+				if (ImGui::MenuItem("Copy", "Ctrl+C")) {}
+				if (ImGui::MenuItem("Paste", "Ctrl+V")) {}
+				if (ImGui::MenuItem("Duplicate", "Ctrl+D")) {}
+				if (ImGui::MenuItem("Delete", "Del")) {}
 				ImGui::EndMenu();
 			}
-			ImGui::EndMenu();
+			if (ImGui::BeginMenu("Assets"))
+			{
+				if (ImGui::MenuItem("Create")) {}
+				if (ImGui::MenuItem("Import New Asset...")) {}
+				if (ImGui::MenuItem("Refresh", "Ctrl+R")) {}
+				ImGui::EndMenu();
+			}
+			if (ImGui::BeginMenu("GameObject"))
+			{
+				if (ImGui::MenuItem("Create Empty", "Ctrl+Shift+N")) {}
+				if (ImGui::BeginMenu("3D Object"))
+				{
+					if (ImGui::MenuItem("Cube")) {}
+					if (ImGui::MenuItem("Sphere")) {}
+					if (ImGui::MenuItem("Capsule")) {}
+					if (ImGui::MenuItem("Cylinder")) {}
+					if (ImGui::MenuItem("Plane")) {}
+					ImGui::EndMenu();
+				}
+				if (ImGui::MenuItem("Camera")) {}
+				if (ImGui::BeginMenu("Light"))
+				{
+					if (ImGui::MenuItem("Directional Light")) {}
+					if (ImGui::MenuItem("Point Light")) {}
+					if (ImGui::MenuItem("Spot Light")) {}
+					ImGui::EndMenu();
+				}
+				ImGui::EndMenu();
+			}
+			if (ImGui::BeginMenu("Component"))
+			{
+				if (ImGui::MenuItem("Add...")) {}
+				ImGui::EndMenu();
+			}
+			if (ImGui::BeginMenu("Window"))
+			{
+				if (ImGui::MenuItem("Scene", nullptr, true)) {}
+				if (ImGui::MenuItem("Game", nullptr, true)) {}
+				if (ImGui::MenuItem("Inspector", nullptr, true)) {}
+				if (ImGui::MenuItem("Hierarchy", nullptr, true)) {}
+				if (ImGui::MenuItem("Console", nullptr, true)) {}
+				if (ImGui::MenuItem("Project", nullptr, true)) {}
+				ImGui::EndMenu();
+			}
+			if (ImGui::BeginMenu("Help"))
+			{
+				if (ImGui::MenuItem("About Hazel Editor")) {}
+				if (ImGui::MenuItem("Documentation")) {}
+				ImGui::EndMenu();
+			}
+			
+			ImGui::EndMenuBar();
 		}
-		if (ImGui::BeginMenu("Component"))
-		{
-			if (ImGui::MenuItem("Add...")) {}
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu("Window"))
-		{
-			if (ImGui::MenuItem("Scene", nullptr, true)) {}
-			if (ImGui::MenuItem("Game", nullptr, true)) {}
-			if (ImGui::MenuItem("Inspector", nullptr, true)) {}
-			if (ImGui::MenuItem("Hierarchy", nullptr, true)) {}
-			if (ImGui::MenuItem("Console", nullptr, true)) {}
-			if (ImGui::MenuItem("Project", nullptr, true)) {}
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu("Help"))
-		{
-			if (ImGui::MenuItem("About Hazel Editor")) {}
-			if (ImGui::MenuItem("Documentation")) {}
-			ImGui::EndMenu();
-		}
-		
-		ImGui::EndMainMenuBar();
 	}
 
 	void EditorLayer::DrawToolbar()
 	{
-		ImGui::Begin("Toolbar", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
+		ImGui::Begin("Toolbar");
 		
-		ImGui::SameLine((ImGui::GetWindowWidth() - 150) * 0.5f);
+		// Center the buttons
+		float buttonWidth = 50.0f;
+		float spacing = ImGui::GetStyle().ItemSpacing.x;
+		float totalWidth = (buttonWidth * 3) + (spacing * 2);
+		ImGui::SetCursorPosX((ImGui::GetWindowWidth() - totalWidth) * 0.5f);
 		
-		if (ImGui::Button(m_IsPlaying ? "Stop" : "Play", ImVec2(50, 0)))
+		if (ImGui::Button(m_IsPlaying ? "Stop" : "Play", ImVec2(buttonWidth, 0)))
 		{
 			m_IsPlaying = !m_IsPlaying;
 			if (!m_IsPlaying)
@@ -153,7 +205,7 @@ namespace HazelEditor {
 		
 		ImGui::SameLine();
 		
-		if (ImGui::Button(m_IsPaused ? "Resume" : "Pause", ImVec2(50, 0)))
+		if (ImGui::Button(m_IsPaused ? "Resume" : "Pause", ImVec2(buttonWidth, 0)))
 		{
 			if (m_IsPlaying)
 				m_IsPaused = !m_IsPaused;
@@ -161,7 +213,7 @@ namespace HazelEditor {
 		
 		ImGui::SameLine();
 		
-		if (ImGui::Button("Step", ImVec2(50, 0)))
+		if (ImGui::Button("Step", ImVec2(buttonWidth, 0)))
 		{
 			// Step one frame
 		}
