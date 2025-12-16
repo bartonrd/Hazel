@@ -25,6 +25,9 @@
     <ClCompile Include="src\Hazel\Renderer\Camera.cpp" />
     <ClCompile Include="src\Hazel\Renderer\Material.cpp" />
     <ClCompile Include="src\Hazel\Renderer\Light.cpp" />
+    <ClCompile Include="src\Hazel\Renderer\MeshGenerator.cpp" />
+    <ClCompile Include="src\Hazel\Renderer\Framebuffer.cpp" />
+    <ClCompile Include="src\Hazel\Renderer\EditorCamera.cpp" />
     <ClCompile Include="..\vendor\imgui\imgui.cpp" />
     <ClCompile Include="..\vendor\imgui\imgui_draw.cpp" />
     <ClCompile Include="..\vendor\imgui\imgui_tables.cpp" />
@@ -72,6 +75,9 @@
     <ClInclude Include="src\Hazel\Renderer\Camera.h" />
     <ClInclude Include="src\Hazel\Renderer\Material.h" />
     <ClInclude Include="src\Hazel\Renderer\Light.h" />
+    <ClInclude Include="src\Hazel\Renderer\MeshGenerator.h" />
+    <ClInclude Include="src\Hazel\Renderer\Framebuffer.h" />
+    <ClInclude Include="src\Hazel\Renderer\EditorCamera.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

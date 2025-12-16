@@ -1,8 +1,21 @@
 #include "EditorLayer.h"
 #include "Hazel/ImGui/ImGuiLayer.h"
+#include "Hazel/Renderer/MeshGenerator.h"
 #include <imgui.h>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace HazelEditor {
+
+	glm::mat4 Transform::GetTransformMatrix() const
+	{
+		glm::mat4 transform = glm::translate(glm::mat4(1.0f), Position);
+		transform = glm::rotate(transform, glm::radians(Rotation.x), glm::vec3(1, 0, 0));
+		transform = glm::rotate(transform, glm::radians(Rotation.y), glm::vec3(0, 1, 0));
+		transform = glm::rotate(transform, glm::radians(Rotation.z), glm::vec3(0, 0, 1));
+		transform = glm::scale(transform, Scale);
+		return transform;
+	}
 
 	EditorLayer::EditorLayer()
 		: Layer("EditorLayer")
@@ -17,15 +30,105 @@ namespace HazelEditor {
 		// This ensures we use the same ImGui context that was initialized in Hazel's ImGuiLayer
 		ImGui::SetCurrentContext(Hazel::ImGuiLayer::GetContext());
 
-		// Create sample scene hierarchy
-		m_Entities.emplace_back("Camera", 1);
-		m_Entities.emplace_back("Directional Light", 2);
-		m_Entities.emplace_back("Player", 3);
-		m_Entities.emplace_back("Ground", 4);
-		m_Entities.emplace_back("Environment", 5);
+		// Initialize scene rendering
+		m_EditorCamera = std::make_unique<Hazel::EditorCamera>();
+		m_SceneFramebuffer = std::make_unique<Hazel::Framebuffer>(1280, 720);
+		
+		// Create shader for scene rendering
+		std::string vertexSrc = R"(
+			#version 330 core
+			layout(location = 0) in vec3 a_Position;
+			layout(location = 1) in vec3 a_Normal;
 
-		// Add some children to demonstrate hierarchy
-		m_Entities[4].Children.push_back(&m_Entities[3]); // Player under Environment
+			uniform mat4 u_ViewProjection;
+			uniform mat4 u_Transform;
+
+			out vec3 v_FragPos;
+			out vec3 v_Normal;
+
+			void main()
+			{
+				v_FragPos = vec3(u_Transform * vec4(a_Position, 1.0));
+				v_Normal = mat3(transpose(inverse(u_Transform))) * a_Normal;
+				gl_Position = u_ViewProjection * u_Transform * vec4(a_Position, 1.0);
+			}
+		)";
+
+		std::string fragmentSrc = R"(
+			#version 330 core
+			layout(location = 0) out vec4 color;
+
+			struct Material {
+				vec4 color;
+				float shininess;
+				float metallic;
+				float roughness;
+			};
+
+			struct DirectionalLight {
+				vec3 direction;
+				vec3 color;
+				float intensity;
+			};
+
+			in vec3 v_FragPos;
+			in vec3 v_Normal;
+
+			uniform Material u_Material;
+			uniform DirectionalLight u_DirectionalLights[4];
+			uniform int u_DirectionalLightCount;
+
+			void main()
+			{
+				vec3 result = vec3(0.0);
+				vec3 normal = normalize(v_Normal);
+				vec3 viewDir = normalize(-v_FragPos);
+
+				// Ambient
+				vec3 ambient = 0.2 * u_Material.color.rgb;
+				result += ambient;
+
+				// Directional lights
+				for(int i = 0; i < u_DirectionalLightCount; i++)
+				{
+					vec3 lightDir = normalize(-u_DirectionalLights[i].direction);
+					
+					// Diffuse
+					float diff = max(dot(normal, lightDir), 0.0);
+					vec3 diffuse = diff * u_DirectionalLights[i].color * u_DirectionalLights[i].intensity;
+					
+					// Specular
+					vec3 reflectDir = reflect(-lightDir, normal);
+					float spec = pow(max(dot(viewDir, reflectDir), 0.0), u_Material.shininess);
+					vec3 specular = spec * u_DirectionalLights[i].color * u_DirectionalLights[i].intensity;
+					
+					result += (diffuse + specular) * u_Material.color.rgb;
+				}
+
+				color = vec4(result, u_Material.color.a);
+			}
+		)";
+		
+		m_SceneShader = std::make_shared<Hazel::Shader>(vertexSrc, fragmentSrc);
+		m_DefaultMaterial = std::make_shared<Hazel::Material>(m_SceneShader);
+		
+		// Create scene light
+		m_SceneLight = std::make_shared<Hazel::DirectionalLight>();
+		m_SceneLight->SetDirection(glm::vec3(-0.2f, -1.0f, -0.3f));
+		m_SceneLight->SetColor(glm::vec3(1.0f, 1.0f, 1.0f));
+		m_SceneLight->SetIntensity(1.0f);
+		
+		// Initialize mesh buffers
+		InitializeMeshBuffers();
+
+		// Create sample scene hierarchy
+		m_Entities.emplace_back("Main Camera", 1);
+		m_Entities.emplace_back("Directional Light", 2);
+		
+		// Add a default cube to demonstrate
+		CreateEntity("Cube", MeshType::Cube);
+		m_Entities.back().EntityTransform.Position = glm::vec3(0.0f, 0.0f, 0.0f);
+		m_Entities.back().Color = glm::vec4(0.8f, 0.3f, 0.3f, 1.0f);
 	}
 
 	void EditorLayer::OnDetach()
@@ -35,6 +138,12 @@ namespace HazelEditor {
 
 	void EditorLayer::OnUpdate(float deltaTime)
 	{
+		// Update editor camera
+		if (m_ViewportFocused)
+		{
+			m_EditorCamera->OnUpdate(deltaTime);
+		}
+		
 		// Update editor logic
 		if (m_IsPlaying && !m_IsPaused)
 		{
@@ -150,12 +259,24 @@ namespace HazelEditor {
 			}
 			if (ImGui::BeginMenu("GameObject"))
 			{
-				if (ImGui::MenuItem("Create Empty", "Ctrl+Shift+N")) {}
+				if (ImGui::MenuItem("Create Empty", "Ctrl+Shift+N")) 
+				{
+					CreateEntity("GameObject", MeshType::None);
+				}
 				if (ImGui::BeginMenu("3D Object"))
 				{
-					if (ImGui::MenuItem("Cube")) {}
-					if (ImGui::MenuItem("Sphere")) {}
-					if (ImGui::MenuItem("Capsule")) {}
+					if (ImGui::MenuItem("Cube")) 
+					{
+						CreateEntity("Cube", MeshType::Cube);
+					}
+					if (ImGui::MenuItem("Sphere")) 
+					{
+						CreateEntity("Sphere", MeshType::Sphere);
+					}
+					if (ImGui::MenuItem("Capsule")) 
+					{
+						CreateEntity("Capsule", MeshType::Capsule);
+					}
 					if (ImGui::MenuItem("Cylinder")) {}
 					if (ImGui::MenuItem("Plane")) {}
 					ImGui::EndMenu();
@@ -262,7 +383,7 @@ namespace HazelEditor {
 		
 		if (ImGui::Button("Create Empty"))
 		{
-			m_Entities.emplace_back("GameObject", (int)m_Entities.size() + 1);
+			CreateEntity("GameObject", MeshType::None);
 		}
 		
 		ImGui::Separator();
@@ -314,28 +435,25 @@ namespace HazelEditor {
 			// Transform component
 			if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
 			{
-				static float position[3] = { 0.0f, 0.0f, 0.0f };
-				static float rotation[3] = { 0.0f, 0.0f, 0.0f };
-				static float scale[3] = { 1.0f, 1.0f, 1.0f };
-				
-				ImGui::DragFloat3("Position", position, 0.1f);
-				ImGui::DragFloat3("Rotation", rotation, 0.1f);
-				ImGui::DragFloat3("Scale", scale, 0.1f);
+				ImGui::DragFloat3("Position", glm::value_ptr(m_SelectedEntity->EntityTransform.Position), 0.1f);
+				ImGui::DragFloat3("Rotation", glm::value_ptr(m_SelectedEntity->EntityTransform.Rotation), 1.0f);
+				ImGui::DragFloat3("Scale", glm::value_ptr(m_SelectedEntity->EntityTransform.Scale), 0.1f);
 			}
 			
-			// Additional components
-			if (ImGui::CollapsingHeader("Mesh Renderer"))
+			// Mesh Renderer component (if entity has a mesh)
+			if (m_SelectedEntity->Mesh != MeshType::None)
 			{
-				ImGui::Text("Material: Default");
-			}
-			
-			if (ImGui::CollapsingHeader("Script Component"))
-			{
-				ImGui::Text("Script: PlayerController.cs");
-				static float speed = 5.0f;
-				static float jumpForce = 10.0f;
-				ImGui::DragFloat("Speed", &speed, 0.1f);
-				ImGui::DragFloat("Jump Force", &jumpForce, 0.1f);
+				if (ImGui::CollapsingHeader("Mesh Renderer", ImGuiTreeNodeFlags_DefaultOpen))
+				{
+					const char* meshNames[] = { "None", "Cube", "Sphere", "Capsule" };
+					int meshType = (int)m_SelectedEntity->Mesh;
+					if (ImGui::Combo("Mesh", &meshType, meshNames, 4))
+					{
+						m_SelectedEntity->Mesh = (MeshType)meshType;
+					}
+					
+					ImGui::ColorEdit4("Color", glm::value_ptr(m_SelectedEntity->Color));
+				}
 			}
 			
 			ImGui::Separator();
@@ -406,23 +524,79 @@ namespace HazelEditor {
 
 	void EditorLayer::DrawSceneView()
 	{
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 		ImGui::Begin("Scene");
 		
-		// Tool buttons
-		if (ImGui::Button("Q")) {} ImGui::SameLine();
-		if (ImGui::Button("W")) {} ImGui::SameLine();
-		if (ImGui::Button("E")) {} ImGui::SameLine();
-		if (ImGui::Button("R")) {} ImGui::SameLine();
-		ImGui::Text("(Hand/Move/Rotate/Scale)");
+		// Get viewport size
+		ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
+		m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
 		
-		ImVec2 viewportSize = ImGui::GetContentRegionAvail();
-		ImGui::Text("Scene Viewport: %.0fx%.0f", viewportSize.x, viewportSize.y);
+		// Resize framebuffer if needed
+		if (viewportPanelSize.x > 0 && viewportPanelSize.y > 0 &&
+			(m_SceneFramebuffer->GetWidth() != viewportPanelSize.x || 
+			 m_SceneFramebuffer->GetHeight() != viewportPanelSize.y))
+		{
+			m_SceneFramebuffer->Resize((unsigned int)viewportPanelSize.x, (unsigned int)viewportPanelSize.y);
+			m_EditorCamera->SetViewportSize(viewportPanelSize.x, viewportPanelSize.y);
+		}
 		
-		// Render scene viewport here (placeholder - will show black until framebuffer is set up)
-		// ImGui::Image((void*)(intptr_t)textureID, viewportSize, ImVec2(0, 1), ImVec2(1, 0));
-		ImGui::Dummy(viewportSize); // Placeholder for now
+		// Render scene to framebuffer
+		RenderScene();
+		
+		// Display framebuffer texture
+		uint64_t textureID = m_SceneFramebuffer->GetColorAttachment();
+		ImGui::Image((void*)(intptr_t)textureID, ImVec2(m_ViewportSize.x, m_ViewportSize.y), ImVec2(0, 1), ImVec2(1, 0));
+		
+		// Check if viewport is focused/hovered
+		m_ViewportFocused = ImGui::IsWindowFocused();
+		m_ViewportHovered = ImGui::IsItemHovered();
+		
+		// Handle mouse input for camera rotation
+		if (m_ViewportHovered && ImGui::IsMouseDown(ImGuiMouseButton_Right))
+		{
+			ImGui::SetMouseCursor(ImGuiMouseCursor_None);
+			
+			ImVec2 mousePos = ImGui::GetMousePos();
+			if (!m_CameraRotating)
+			{
+				m_LastMousePos = glm::vec2(mousePos.x, mousePos.y);
+				m_CameraRotating = true;
+			}
+			
+			glm::vec2 currentPos(mousePos.x, mousePos.y);
+			glm::vec2 delta = currentPos - m_LastMousePos;
+			m_LastMousePos = currentPos;
+			
+			m_EditorCamera->ProcessMouseMovement(delta.x, -delta.y);
+		}
+		else
+		{
+			m_CameraRotating = false;
+		}
+		
+		// Handle keyboard input for camera movement (WASD + QE)
+		if (m_ViewportFocused)
+		{
+			m_EditorCamera->SetMoveForward(ImGui::IsKeyDown(ImGuiKey_W));
+			m_EditorCamera->SetMoveBackward(ImGui::IsKeyDown(ImGuiKey_S));
+			m_EditorCamera->SetMoveLeft(ImGui::IsKeyDown(ImGuiKey_A));
+			m_EditorCamera->SetMoveRight(ImGui::IsKeyDown(ImGuiKey_D));
+			m_EditorCamera->SetMoveUp(ImGui::IsKeyDown(ImGuiKey_E));
+			m_EditorCamera->SetMoveDown(ImGui::IsKeyDown(ImGuiKey_Q));
+		}
+		else
+		{
+			// Stop all movement when not focused
+			m_EditorCamera->SetMoveForward(false);
+			m_EditorCamera->SetMoveBackward(false);
+			m_EditorCamera->SetMoveLeft(false);
+			m_EditorCamera->SetMoveRight(false);
+			m_EditorCamera->SetMoveUp(false);
+			m_EditorCamera->SetMoveDown(false);
+		}
 		
 		ImGui::End();
+		ImGui::PopStyleVar();
 	}
 
 	void EditorLayer::DrawAssetBrowser()
@@ -462,6 +636,145 @@ namespace HazelEditor {
 			entity.IsSelected = false;
 		}
 		m_SelectedEntity = nullptr;
+	}
+
+	void EditorLayer::CreateEntity(const std::string& name, MeshType meshType)
+	{
+		Entity newEntity(name, m_NextEntityID++);
+		newEntity.Mesh = meshType;
+		
+		// Set default colors based on mesh type
+		switch (meshType)
+		{
+		case MeshType::Cube:
+			newEntity.Color = glm::vec4(0.8f, 0.3f, 0.3f, 1.0f); // Red
+			break;
+		case MeshType::Sphere:
+			newEntity.Color = glm::vec4(0.3f, 0.8f, 0.3f, 1.0f); // Green
+			break;
+		case MeshType::Capsule:
+			newEntity.Color = glm::vec4(0.3f, 0.3f, 0.8f, 1.0f); // Blue
+			break;
+		default:
+			newEntity.Color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f); // White
+			break;
+		}
+		
+		m_Entities.push_back(newEntity);
+	}
+
+	void EditorLayer::RenderScene()
+	{
+		// Bind framebuffer and clear
+		m_SceneFramebuffer->Bind();
+		Hazel::Renderer::SetClearColor(glm::vec4(0.2f, 0.2f, 0.2f, 1.0f));
+		Hazel::Renderer::Clear();
+		
+		// Clear lights and add scene light
+		Hazel::Renderer::ClearLights();
+		Hazel::Renderer::AddLight(m_SceneLight);
+		
+		// Begin scene with editor camera
+		Hazel::Renderer::BeginScene(*m_EditorCamera);
+		
+		// Render all entities with meshes
+		for (auto& entity : m_Entities)
+		{
+			if (entity.Mesh != MeshType::None)
+			{
+				auto meshVA = GetMeshVertexArray(entity.Mesh);
+				if (meshVA)
+				{
+					// Update material color
+					m_DefaultMaterial->SetColor(entity.Color);
+					
+					// Get transform matrix
+					glm::mat4 transform = entity.EntityTransform.GetTransformMatrix();
+					
+					// Submit for rendering
+					Hazel::Renderer::Submit(meshVA, m_DefaultMaterial, transform);
+				}
+			}
+		}
+		
+		Hazel::Renderer::EndScene();
+		
+		// Unbind framebuffer
+		m_SceneFramebuffer->Unbind();
+	}
+
+	void EditorLayer::InitializeMeshBuffers()
+	{
+		using namespace Hazel;
+		
+		// Create cube mesh
+		{
+			MeshData cubeData = MeshGenerator::CreateCube(1.0f);
+			
+			m_CubeMesh = std::make_shared<VertexArray>();
+			auto vertexBuffer = std::make_shared<VertexBuffer>(cubeData.Vertices.data(), 
+				cubeData.Vertices.size() * sizeof(float));
+			vertexBuffer->SetLayout({
+				{ ShaderDataType::Float3, "a_Position" },
+				{ ShaderDataType::Float3, "a_Normal" }
+			});
+			m_CubeMesh->AddVertexBuffer(vertexBuffer.get());
+			
+			auto indexBuffer = std::make_shared<IndexBuffer>(cubeData.Indices.data(), 
+				cubeData.Indices.size());
+			m_CubeMesh->SetIndexBuffer(indexBuffer.get());
+		}
+		
+		// Create sphere mesh
+		{
+			MeshData sphereData = MeshGenerator::CreateSphere(0.5f, 32);
+			
+			m_SphereMesh = std::make_shared<VertexArray>();
+			auto vertexBuffer = std::make_shared<VertexBuffer>(sphereData.Vertices.data(), 
+				sphereData.Vertices.size() * sizeof(float));
+			vertexBuffer->SetLayout({
+				{ ShaderDataType::Float3, "a_Position" },
+				{ ShaderDataType::Float3, "a_Normal" }
+			});
+			m_SphereMesh->AddVertexBuffer(vertexBuffer.get());
+			
+			auto indexBuffer = std::make_shared<IndexBuffer>(sphereData.Indices.data(), 
+				sphereData.Indices.size());
+			m_SphereMesh->SetIndexBuffer(indexBuffer.get());
+		}
+		
+		// Create capsule mesh
+		{
+			MeshData capsuleData = MeshGenerator::CreateCapsule(1.0f, 0.5f, 32);
+			
+			m_CapsuleMesh = std::make_shared<VertexArray>();
+			auto vertexBuffer = std::make_shared<VertexBuffer>(capsuleData.Vertices.data(), 
+				capsuleData.Vertices.size() * sizeof(float));
+			vertexBuffer->SetLayout({
+				{ ShaderDataType::Float3, "a_Position" },
+				{ ShaderDataType::Float3, "a_Normal" }
+			});
+			m_CapsuleMesh->AddVertexBuffer(vertexBuffer.get());
+			
+			auto indexBuffer = std::make_shared<IndexBuffer>(capsuleData.Indices.data(), 
+				capsuleData.Indices.size());
+			m_CapsuleMesh->SetIndexBuffer(indexBuffer.get());
+		}
+	}
+
+	std::shared_ptr<Hazel::VertexArray> EditorLayer::GetMeshVertexArray(MeshType type)
+	{
+		switch (type)
+		{
+		case MeshType::Cube:
+			return m_CubeMesh;
+		case MeshType::Sphere:
+			return m_SphereMesh;
+		case MeshType::Capsule:
+			return m_CapsuleMesh;
+		default:
+			return nullptr;
+		}
 	}
 
 }
