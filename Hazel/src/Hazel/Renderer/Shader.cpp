@@ -1,6 +1,6 @@
 #include "Shader.h"
+#include "OpenGLLoader.h"
 #include "../Log.h"
-#include <imgui_impl_opengl3_loader.h>
 #include <vector>
 
 namespace Hazel {

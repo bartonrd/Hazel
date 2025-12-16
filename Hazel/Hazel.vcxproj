@@ -18,6 +18,7 @@
     <ClCompile Include="src\Hazel\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\Hazel\Scripting\ScriptEngine.cpp" />
     <ClCompile Include="src\Hazel\Scripting\ScriptComponent.cpp" />
+    <ClCompile Include="src\Hazel\Renderer\OpenGLLoader.cpp" />
     <ClCompile Include="src\Hazel\Renderer\Renderer.cpp" />
     <ClCompile Include="src\Hazel\Renderer\Shader.cpp" />
     <ClCompile Include="src\Hazel\Renderer\Buffer.cpp" />
@@ -64,6 +65,7 @@
     <ClInclude Include="src\Hazel\ImGui\ImGuiLayer.h" />
     <ClInclude Include="src\Hazel\Scripting\ScriptEngine.h" />
     <ClInclude Include="src\Hazel\Scripting\ScriptComponent.h" />
+    <ClInclude Include="src\Hazel\Renderer\OpenGLLoader.h" />
     <ClInclude Include="src\Hazel\Renderer\Renderer.h" />
     <ClInclude Include="src\Hazel\Renderer\Shader.h" />
     <ClInclude Include="src\Hazel\Renderer\Buffer.h" />

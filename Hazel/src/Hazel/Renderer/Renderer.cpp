@@ -1,6 +1,6 @@
 #include "Renderer.h"
+#include "OpenGLLoader.h"
 #include "../Log.h"
-#include <imgui_impl_opengl3_loader.h>
 
 namespace Hazel {
 
@@ -18,6 +18,9 @@ namespace Hazel {
 			HZ_ERROR("Failed to initialize OpenGL loader");
 			return;
 		}
+
+		// Initialize additional Hazel OpenGL functions
+		HazelOpenGLInit();
 
 		s_SceneData = new SceneData();
 		s_RendererInitialized = true;
