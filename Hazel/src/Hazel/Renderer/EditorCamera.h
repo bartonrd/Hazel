@@ -5,6 +5,11 @@
 
 namespace Hazel {
 
+#ifdef _MSC_VER
+	#pragma warning(push)
+	#pragma warning(disable: 4251) // Disable warning about DLL interface for private members
+#endif
+
 	class HAZEL_API EditorCamera : public Camera
 	{
 	public:
@@ -55,5 +60,9 @@ namespace Hazel {
 		bool m_MoveUp = false;
 		bool m_MoveDown = false;
 	};
+
+#ifdef _MSC_VER
+	#pragma warning(pop)
+#endif
 
 }

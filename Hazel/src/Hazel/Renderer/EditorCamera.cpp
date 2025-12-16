@@ -1,6 +1,5 @@
 #include "EditorCamera.h"
 #include <glm/gtc/matrix_transform.hpp>
-#include <algorithm>
 
 namespace Hazel {
 
@@ -45,7 +44,7 @@ namespace Hazel {
 		// Constrain pitch to prevent screen flip
 		if (constrainPitch)
 		{
-			m_Pitch = std::clamp(m_Pitch, -89.0f, 89.0f);
+			m_Pitch = glm::clamp(m_Pitch, -89.0f, 89.0f);
 		}
 
 		// Update camera vectors using the updated Euler angles
@@ -55,7 +54,7 @@ namespace Hazel {
 	void EditorCamera::ProcessMouseScroll(float yOffset)
 	{
 		m_ZoomLevel -= yOffset;
-		m_ZoomLevel = std::clamp(m_ZoomLevel, 1.0f, 90.0f);
+		m_ZoomLevel = glm::clamp(m_ZoomLevel, 1.0f, 90.0f);
 		
 		// Update perspective with new FOV
 		SetPerspective(m_ZoomLevel, 16.0f / 9.0f, 0.1f, 1000.0f);

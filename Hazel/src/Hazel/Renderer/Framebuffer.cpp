@@ -56,7 +56,7 @@ namespace Hazel {
 	{
 		if (width == 0 || height == 0 || width > 8192 || height > 8192)
 		{
-			HZ_WARN("Attempted to resize framebuffer to {0}x{1}", width, height);
+			HZ_WARN("Attempted to resize framebuffer to invalid dimensions");
 			return;
 		}
 
