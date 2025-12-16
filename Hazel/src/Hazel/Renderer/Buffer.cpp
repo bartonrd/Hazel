@@ -114,8 +114,8 @@ namespace Hazel {
 				element.GetComponentCount(),
 				ShaderDataTypeToOpenGLBaseType(element.Type),
 				element.Normalized ? GL_TRUE : GL_FALSE,
-				layout.GetStride(),
-				(const void*)(unsigned long long)element.Offset);
+				static_cast<GLsizei>(layout.GetStride()),
+				(const void*)(uintptr_t)element.Offset);
 			index++;
 		}
 

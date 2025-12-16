@@ -34,11 +34,25 @@ extern "C" {
 #define GL_COLOR_BUFFER_BIT               0x00004000
 #endif
 
+#ifndef GL_SRC_ALPHA
+#define GL_SRC_ALPHA                      0x0302
+#endif
+
+#ifndef GL_ONE_MINUS_SRC_ALPHA
+#define GL_ONE_MINUS_SRC_ALPHA            0x0303
+#endif
+
 // Additional OpenGL function declarations not in ImGui's minimal loader
 #ifndef glDepthFunc
 typedef void (APIENTRYP PFNGLDEPTHFUNCPROC) (GLenum func);
 extern PFNGLDEPTHFUNCPROC glad_glDepthFunc;
 #define glDepthFunc glad_glDepthFunc
+#endif
+
+#ifndef glBlendFunc
+typedef void (APIENTRYP PFNGLBLENDFUNCPROC) (GLenum sfactor, GLenum dfactor);
+extern PFNGLBLENDFUNCPROC glad_glBlendFunc;
+#define glBlendFunc glad_glBlendFunc
 #endif
 
 #ifndef glUniform1f

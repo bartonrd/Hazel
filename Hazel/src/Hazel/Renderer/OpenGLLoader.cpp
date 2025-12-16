@@ -1,12 +1,15 @@
 #include "OpenGLLoader.h"
 
 #ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
 #include <windows.h>
 #endif
 
 // Function pointer definitions
 PFNGLDEPTHFUNCPROC glad_glDepthFunc = NULL;
+PFNGLBLENDFUNCPROC glad_glBlendFunc = NULL;
 PFNGLUNIFORM1FPROC glad_glUniform1f = NULL;
 PFNGLUNIFORM3FPROC glad_glUniform3f = NULL;
 PFNGLUNIFORM4FPROC glad_glUniform4f = NULL;
@@ -25,13 +28,16 @@ void HazelOpenGLInit()
 	if (wglGetProcAddress)
 	{
 		glad_glDepthFunc = (PFNGLDEPTHFUNCPROC)wglGetProcAddress("glDepthFunc");
+		glad_glBlendFunc = (PFNGLBLENDFUNCPROC)wglGetProcAddress("glBlendFunc");
 		glad_glUniform1f = (PFNGLUNIFORM1FPROC)wglGetProcAddress("glUniform1f");
 		glad_glUniform3f = (PFNGLUNIFORM3FPROC)wglGetProcAddress("glUniform3f");
 		glad_glUniform4f = (PFNGLUNIFORM4FPROC)wglGetProcAddress("glUniform4f");
 	}
 	
-	// glDepthFunc is actually in OpenGL 1.0, so it might be directly exported
+	// OpenGL 1.x functions might be directly exported from opengl32.dll
 	if (!glad_glDepthFunc)
 		glad_glDepthFunc = (PFNGLDEPTHFUNCPROC)GetProcAddress(opengl32, "glDepthFunc");
+	if (!glad_glBlendFunc)
+		glad_glBlendFunc = (PFNGLBLENDFUNCPROC)GetProcAddress(opengl32, "glBlendFunc");
 #endif
 }
