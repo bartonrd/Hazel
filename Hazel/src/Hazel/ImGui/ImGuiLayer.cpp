@@ -99,4 +99,9 @@ namespace Hazel {
 		#endif
 	}
 
+	ImGuiContext* ImGuiLayer::GetContext()
+	{
+		return ImGui::GetCurrentContext();
+	}
+
 }

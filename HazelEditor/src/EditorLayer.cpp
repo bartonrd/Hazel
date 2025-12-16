@@ -1,4 +1,5 @@
 #include "EditorLayer.h"
+#include "Hazel/ImGui/ImGuiLayer.h"
 #include <imgui.h>
 
 namespace HazelEditor {
@@ -11,6 +12,10 @@ namespace HazelEditor {
 	void EditorLayer::OnAttach()
 	{
 		HZ_INFO("EditorLayer::OnAttach - Unity-like editor interface initialized");
+
+		// CRITICAL: Set the ImGui context from Hazel.dll
+		// This ensures we use the same ImGui context that was initialized in Hazel's ImGuiLayer
+		ImGui::SetCurrentContext(Hazel::ImGuiLayer::GetContext());
 
 		// Create sample scene hierarchy
 		m_Entities.emplace_back("Camera", 1);
