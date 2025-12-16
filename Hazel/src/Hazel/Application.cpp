@@ -48,7 +48,7 @@ namespace Hazel
 			if (frameCount > 0)
 			{
 				HZ_INFO("========================================");
-				HZ_INFO("Frame {0} - Editor Update", frameCount + 1);
+				HZ_INFO("Frame " + std::to_string(frameCount + 1) + " - Editor Update");
 				HZ_INFO("========================================");
 			}
 
@@ -73,7 +73,7 @@ namespace Hazel
 		}
 
 		HZ_INFO("");
-		HZ_INFO("Application::Run() - Main loop ended after {0} frames", frameCount);
+		HZ_INFO("Application::Run() - Main loop ended after " + std::to_string(frameCount) + " frames");
 	}
 
 	void Application::PushLayer(Layer* layer)

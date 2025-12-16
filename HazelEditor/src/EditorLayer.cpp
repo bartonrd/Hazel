@@ -89,7 +89,7 @@ namespace HazelEditor {
 		if (renderCount > 1)
 		{
 			// Subsequent frames - show update activity
-			HZ_INFO("Editor panels active - Frame {0}", renderCount);
+			HZ_INFO("Editor panels active - Frame " + std::to_string(renderCount));
 		}
 	}
 
@@ -110,7 +110,9 @@ namespace HazelEditor {
 		static int callCount = 0;
 		if (callCount++ == 0)
 		{
-			HZ_TRACE("Toolbar: Play [{0}] | Pause [{1}] | Step", m_IsPlaying ? "■" : "▶", m_IsPaused ? "■" : "||");
+			std::string playSymbol = m_IsPlaying ? "■" : "▶";
+			std::string pauseSymbol = m_IsPaused ? "■" : "||";
+			HZ_TRACE("Toolbar: Play [" + playSymbol + "] | Pause [" + pauseSymbol + "] | Step");
 		}
 	}
 
@@ -120,7 +122,7 @@ namespace HazelEditor {
 		static int callCount = 0;
 		if (callCount++ == 0)
 		{
-			HZ_TRACE("Hierarchy Panel: {0} entities - Camera, Light, Player, Ground, Environment", m_Entities.size());
+			HZ_TRACE("Hierarchy Panel: " + std::to_string(m_Entities.size()) + " entities - Camera, Light, Player, Ground, Environment");
 		}
 	}
 
@@ -159,8 +161,8 @@ namespace HazelEditor {
 		static int callCount = 0;
 		if (callCount++ == 0)
 		{
-			const char* selected = m_SelectedEntity ? m_SelectedEntity->Name.c_str() : "None";
-			HZ_TRACE("Inspector Panel: Selected object = {0}", selected);
+			std::string selected = m_SelectedEntity ? m_SelectedEntity->Name : "None";
+			HZ_TRACE("Inspector Panel: Selected object = " + selected);
 		}
 	}
 
@@ -170,8 +172,8 @@ namespace HazelEditor {
 		static int callCount = 0;
 		if (callCount++ == 0)
 		{
-			HZ_TRACE("Console Panel: Filters [Trace:{0}] [Info:{1}] [Warn:{2}] [Error:{3}] [Fatal:{4}]",
-				m_ShowTrace, m_ShowInfo, m_ShowWarn, m_ShowError, m_ShowFatal);
+			HZ_TRACE("Console Panel: Filters [Trace:" + std::to_string(m_ShowTrace) + "] [Info:" + std::to_string(m_ShowInfo) + 
+				"] [Warn:" + std::to_string(m_ShowWarn) + "] [Error:" + std::to_string(m_ShowError) + "] [Fatal:" + std::to_string(m_ShowFatal) + "]");
 		}
 	}
 
@@ -201,7 +203,7 @@ namespace HazelEditor {
 		static int callCount = 0;
 		if (callCount++ == 0)
 		{
-			HZ_TRACE("Asset Browser: Current directory = {0}", m_CurrentDirectory);
+			HZ_TRACE("Asset Browser: Current directory = " + m_CurrentDirectory);
 		}
 	}
 
