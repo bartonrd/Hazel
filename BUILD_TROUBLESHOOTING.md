@@ -2,6 +2,31 @@
 
 ## Build Errors Fixed
 
+### Error: HazelEditor GLFW Linker Errors (LNK2019)
+
+**Errors:**
+- `LNK2019 unresolved external symbol glfwSetErrorCallback`
+- `LNK2019 unresolved external symbol glfwGetError`
+- `LNK2019 unresolved external symbol glfwGetMonitorContentScale`
+- And many other GLFW function linker errors
+
+**Cause:**
+Initially added ImGui backend files (imgui_impl_glfw.cpp, imgui_impl_opengl3.cpp) to HazelEditor.vcxproj. These backend files call GLFW functions, but GLFW is only compiled into Hazel.dll, not HazelEditor.
+
+**Solution Applied:**
+Removed ImGui backend files from HazelEditor.vcxproj. HazelEditor only needs:
+- ImGui core files (imgui.cpp, imgui_draw.cpp, imgui_tables.cpp, imgui_widgets.cpp)
+- **NOT** the backend files
+
+**Why This Works:**
+- Backend initialization happens in Hazel's ImGuiLayer (which has access to GLFW)
+- EditorLayer only uses pure ImGui functions (Begin, End, Button, etc.)
+- The backends (GLFW/OpenGL3) are only needed in Hazel.dll where the window is created
+- This avoids unnecessary linking of GLFW/OpenGL to HazelEditor
+
+**Result:**
+All GLFW linker errors are resolved. HazelEditor compiles with only ImGui core, which is all it needs.
+
 ### Error: HazelEditor ImGui Linker Errors (LNK2019)
 
 **Errors:**
@@ -14,9 +39,8 @@
 HazelEditor was trying to use ImGui functions but ImGui wasn't being linked. ImGui was compiled into Hazel.dll but the symbols weren't exported, so HazelEditor couldn't find them.
 
 **Solution Applied:**
-Added ImGui source files directly to HazelEditor.vcxproj:
+Added ImGui core source files to HazelEditor.vcxproj:
 - imgui.cpp, imgui_draw.cpp, imgui_tables.cpp, imgui_widgets.cpp
-- imgui_impl_glfw.cpp, imgui_impl_opengl3.cpp
 - Added opengl32.lib to linker dependencies
 - Added _CRT_SECURE_NO_WARNINGS preprocessor definition
 
