@@ -22,19 +22,26 @@ namespace Hazel {
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
-		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
+		
+		// Note: Docking and multi-viewport features require ImGui docking branch
+		// If using the standard ImGui release, these features won't be available
+		#ifdef IMGUI_HAS_DOCK_SPACE
+			io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Enable Docking
+			io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;       // Enable Multi-Viewport / Platform Windows
+		#endif
 
 		// Setup Dear ImGui style - Dark theme like Unity
 		ImGui::StyleColorsDark();
 		
 		// When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
 		ImGuiStyle& style = ImGui::GetStyle();
+		#ifdef IMGUI_HAS_DOCK_SPACE
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
 			style.WindowRounding = 0.0f;
 			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
+		#endif
 
 		// Setup Platform/Renderer backends
 		GLFWwindow* window = Application::Get().GetWindow();
@@ -81,6 +88,7 @@ namespace Hazel {
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		// Update and Render additional Platform Windows
+		#ifdef IMGUI_HAS_DOCK_SPACE
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
 			GLFWwindow* backup_current_context = glfwGetCurrentContext();
@@ -88,6 +96,7 @@ namespace Hazel {
 			ImGui::RenderPlatformWindowsDefault();
 			glfwMakeContextCurrent(backup_current_context);
 		}
+		#endif
 	}
 
 }

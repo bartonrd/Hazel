@@ -39,34 +39,9 @@ namespace HazelEditor {
 
 	void EditorLayer::OnImGuiRender()
 	{
-		// Setup dockspace
-		static bool dockspaceOpen = true;
-		static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
-
-		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-		ImGuiViewport* viewport = ImGui::GetMainViewport();
-		ImGui::SetNextWindowPos(viewport->Pos);
-		ImGui::SetNextWindowSize(viewport->Size);
-		ImGui::SetNextWindowViewport(viewport->ID);
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-		window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-		window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-		ImGui::Begin("DockSpace", &dockspaceOpen, window_flags);
-		ImGui::PopStyleVar();
-		ImGui::PopStyleVar(2);
-
-		// DockSpace
-		ImGuiIO& io = ImGui::GetIO();
-		if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
-		{
-			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-		}
-
-		// Draw all panels
+		// Note: If ImGui docking is available, we could use a dockspace here
+		// For now, we'll use separate windows that can be moved around
+		
 		DrawMenuBar();
 		DrawToolbar();
 		DrawSceneHierarchy();
@@ -75,88 +50,87 @@ namespace HazelEditor {
 		DrawGameView();
 		DrawSceneView();
 		DrawAssetBrowser();
-
-		ImGui::End();
 	}
 
 	void EditorLayer::DrawMenuBar()
 	{
-		if (ImGui::BeginMenuBar())
+		// Create a separate window for the menu bar
+		ImGui::BeginMainMenuBar();
+		
+		if (ImGui::BeginMenu("File"))
 		{
-			if (ImGui::BeginMenu("File"))
-			{
-				if (ImGui::MenuItem("New Scene", "Ctrl+N")) {}
-				if (ImGui::MenuItem("Open Scene", "Ctrl+O")) {}
-				if (ImGui::MenuItem("Save", "Ctrl+S")) {}
-				if (ImGui::MenuItem("Save As...", "Ctrl+Shift+S")) {}
-				ImGui::Separator();
-				if (ImGui::MenuItem("Exit")) {}
-				ImGui::EndMenu();
-			}
-			if (ImGui::BeginMenu("Edit"))
-			{
-				if (ImGui::MenuItem("Undo", "Ctrl+Z")) {}
-				if (ImGui::MenuItem("Redo", "Ctrl+Y")) {}
-				ImGui::Separator();
-				if (ImGui::MenuItem("Cut", "Ctrl+X")) {}
-				if (ImGui::MenuItem("Copy", "Ctrl+C")) {}
-				if (ImGui::MenuItem("Paste", "Ctrl+V")) {}
-				if (ImGui::MenuItem("Duplicate", "Ctrl+D")) {}
-				if (ImGui::MenuItem("Delete", "Del")) {}
-				ImGui::EndMenu();
-			}
-			if (ImGui::BeginMenu("Assets"))
-			{
-				if (ImGui::MenuItem("Create")) {}
-				if (ImGui::MenuItem("Import New Asset...")) {}
-				if (ImGui::MenuItem("Refresh", "Ctrl+R")) {}
-				ImGui::EndMenu();
-			}
-			if (ImGui::BeginMenu("GameObject"))
-			{
-				if (ImGui::MenuItem("Create Empty", "Ctrl+Shift+N")) {}
-				if (ImGui::BeginMenu("3D Object"))
-				{
-					if (ImGui::MenuItem("Cube")) {}
-					if (ImGui::MenuItem("Sphere")) {}
-					if (ImGui::MenuItem("Capsule")) {}
-					if (ImGui::MenuItem("Cylinder")) {}
-					if (ImGui::MenuItem("Plane")) {}
-					ImGui::EndMenu();
-				}
-				if (ImGui::MenuItem("Camera")) {}
-				if (ImGui::BeginMenu("Light"))
-				{
-					if (ImGui::MenuItem("Directional Light")) {}
-					if (ImGui::MenuItem("Point Light")) {}
-					if (ImGui::MenuItem("Spot Light")) {}
-					ImGui::EndMenu();
-				}
-				ImGui::EndMenu();
-			}
-			if (ImGui::BeginMenu("Component"))
-			{
-				if (ImGui::MenuItem("Add...")) {}
-				ImGui::EndMenu();
-			}
-			if (ImGui::BeginMenu("Window"))
-			{
-				if (ImGui::MenuItem("Scene", nullptr, true)) {}
-				if (ImGui::MenuItem("Game", nullptr, true)) {}
-				if (ImGui::MenuItem("Inspector", nullptr, true)) {}
-				if (ImGui::MenuItem("Hierarchy", nullptr, true)) {}
-				if (ImGui::MenuItem("Console", nullptr, true)) {}
-				if (ImGui::MenuItem("Project", nullptr, true)) {}
-				ImGui::EndMenu();
-			}
-			if (ImGui::BeginMenu("Help"))
-			{
-				if (ImGui::MenuItem("About Hazel Editor")) {}
-				if (ImGui::MenuItem("Documentation")) {}
-				ImGui::EndMenu();
-			}
-			ImGui::EndMenuBar();
+			if (ImGui::MenuItem("New Scene", "Ctrl+N")) {}
+			if (ImGui::MenuItem("Open Scene", "Ctrl+O")) {}
+			if (ImGui::MenuItem("Save", "Ctrl+S")) {}
+			if (ImGui::MenuItem("Save As...", "Ctrl+Shift+S")) {}
+			ImGui::Separator();
+			if (ImGui::MenuItem("Exit")) {}
+			ImGui::EndMenu();
 		}
+		if (ImGui::BeginMenu("Edit"))
+		{
+			if (ImGui::MenuItem("Undo", "Ctrl+Z")) {}
+			if (ImGui::MenuItem("Redo", "Ctrl+Y")) {}
+			ImGui::Separator();
+			if (ImGui::MenuItem("Cut", "Ctrl+X")) {}
+			if (ImGui::MenuItem("Copy", "Ctrl+C")) {}
+			if (ImGui::MenuItem("Paste", "Ctrl+V")) {}
+			if (ImGui::MenuItem("Duplicate", "Ctrl+D")) {}
+			if (ImGui::MenuItem("Delete", "Del")) {}
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Assets"))
+		{
+			if (ImGui::MenuItem("Create")) {}
+			if (ImGui::MenuItem("Import New Asset...")) {}
+			if (ImGui::MenuItem("Refresh", "Ctrl+R")) {}
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("GameObject"))
+		{
+			if (ImGui::MenuItem("Create Empty", "Ctrl+Shift+N")) {}
+			if (ImGui::BeginMenu("3D Object"))
+			{
+				if (ImGui::MenuItem("Cube")) {}
+				if (ImGui::MenuItem("Sphere")) {}
+				if (ImGui::MenuItem("Capsule")) {}
+				if (ImGui::MenuItem("Cylinder")) {}
+				if (ImGui::MenuItem("Plane")) {}
+				ImGui::EndMenu();
+			}
+			if (ImGui::MenuItem("Camera")) {}
+			if (ImGui::BeginMenu("Light"))
+			{
+				if (ImGui::MenuItem("Directional Light")) {}
+				if (ImGui::MenuItem("Point Light")) {}
+				if (ImGui::MenuItem("Spot Light")) {}
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Component"))
+		{
+			if (ImGui::MenuItem("Add...")) {}
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Window"))
+		{
+			if (ImGui::MenuItem("Scene", nullptr, true)) {}
+			if (ImGui::MenuItem("Game", nullptr, true)) {}
+			if (ImGui::MenuItem("Inspector", nullptr, true)) {}
+			if (ImGui::MenuItem("Hierarchy", nullptr, true)) {}
+			if (ImGui::MenuItem("Console", nullptr, true)) {}
+			if (ImGui::MenuItem("Project", nullptr, true)) {}
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Help"))
+		{
+			if (ImGui::MenuItem("About Hazel Editor")) {}
+			if (ImGui::MenuItem("Documentation")) {}
+			ImGui::EndMenu();
+		}
+		
+		ImGui::EndMainMenuBar();
 	}
 
 	void EditorLayer::DrawToolbar()
@@ -331,8 +305,9 @@ namespace HazelEditor {
 		ImVec2 viewportSize = ImGui::GetContentRegionAvail();
 		ImGui::Text("Game Viewport: %.0fx%.0f", viewportSize.x, viewportSize.y);
 		
-		// Render game viewport here
-		ImGui::Image(0, viewportSize, ImVec2(0, 1), ImVec2(1, 0));
+		// Render game viewport here (placeholder - will show black until framebuffer is set up)
+		// ImGui::Image((void*)(intptr_t)textureID, viewportSize, ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::Dummy(viewportSize); // Placeholder for now
 		
 		ImGui::End();
 	}
@@ -351,8 +326,9 @@ namespace HazelEditor {
 		ImVec2 viewportSize = ImGui::GetContentRegionAvail();
 		ImGui::Text("Scene Viewport: %.0fx%.0f", viewportSize.x, viewportSize.y);
 		
-		// Render scene viewport here
-		ImGui::Image(0, viewportSize, ImVec2(0, 1), ImVec2(1, 0));
+		// Render scene viewport here (placeholder - will show black until framebuffer is set up)
+		// ImGui::Image((void*)(intptr_t)textureID, viewportSize, ImVec2(0, 1), ImVec2(1, 0));
+		ImGui::Dummy(viewportSize); // Placeholder for now
 		
 		ImGui::End();
 	}
