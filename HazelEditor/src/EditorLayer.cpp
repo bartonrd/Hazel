@@ -44,6 +44,9 @@ namespace HazelEditor {
 
 	void EditorLayer::OnImGuiRender()
 	{
+		// Draw the main menu bar at the top (outside dockspace)
+		DrawMenuBar();
+
 		// Create a fullscreen dockspace
 		static bool dockspaceOpen = true;
 		static bool opt_fullscreen_persistent = true;
@@ -52,7 +55,7 @@ namespace HazelEditor {
 
 		// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
 		// because it would be confusing to have two docking targets within each others.
-		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
 		if (opt_fullscreen)
 		{
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -89,8 +92,6 @@ namespace HazelEditor {
 			ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
 			ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 		}
-
-		DrawMenuBar();
 		
 		ImGui::End();
 
@@ -106,8 +107,8 @@ namespace HazelEditor {
 
 	void EditorLayer::DrawMenuBar()
 	{
-		// Create menu bar within the dockspace window
-		if (ImGui::BeginMenuBar())
+		// Create main menu bar at the top of the screen
+		if (ImGui::BeginMainMenuBar())
 		{
 			if (ImGui::BeginMenu("File"))
 			{
@@ -182,7 +183,7 @@ namespace HazelEditor {
 				ImGui::EndMenu();
 			}
 			
-			ImGui::EndMenuBar();
+			ImGui::EndMainMenuBar();
 		}
 	}
 
