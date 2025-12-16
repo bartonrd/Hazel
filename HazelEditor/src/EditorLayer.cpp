@@ -712,17 +712,19 @@ namespace HazelEditor {
 			MeshData cubeData = MeshGenerator::CreateCube(1.0f);
 			
 			m_CubeMesh = std::make_shared<VertexArray>();
-			auto vertexBuffer = std::make_shared<VertexBuffer>(cubeData.Vertices.data(), 
+			m_CubeVertexBuffer = std::make_shared<VertexBuffer>(
+				cubeData.Vertices.data(), 
 				cubeData.Vertices.size() * sizeof(float));
-			vertexBuffer->SetLayout({
+			m_CubeVertexBuffer->SetLayout({
 				{ ShaderDataType::Float3, "a_Position" },
 				{ ShaderDataType::Float3, "a_Normal" }
 			});
-			m_CubeMesh->AddVertexBuffer(vertexBuffer.get());
+			m_CubeMesh->AddVertexBuffer(m_CubeVertexBuffer.get());
 			
-			auto indexBuffer = std::make_shared<IndexBuffer>(cubeData.Indices.data(), 
+			m_CubeIndexBuffer = std::make_shared<IndexBuffer>(
+				cubeData.Indices.data(), 
 				cubeData.Indices.size());
-			m_CubeMesh->SetIndexBuffer(indexBuffer.get());
+			m_CubeMesh->SetIndexBuffer(m_CubeIndexBuffer.get());
 		}
 		
 		// Create sphere mesh
@@ -730,17 +732,19 @@ namespace HazelEditor {
 			MeshData sphereData = MeshGenerator::CreateSphere(0.5f, 32);
 			
 			m_SphereMesh = std::make_shared<VertexArray>();
-			auto vertexBuffer = std::make_shared<VertexBuffer>(sphereData.Vertices.data(), 
+			m_SphereVertexBuffer = std::make_shared<VertexBuffer>(
+				sphereData.Vertices.data(), 
 				sphereData.Vertices.size() * sizeof(float));
-			vertexBuffer->SetLayout({
+			m_SphereVertexBuffer->SetLayout({
 				{ ShaderDataType::Float3, "a_Position" },
 				{ ShaderDataType::Float3, "a_Normal" }
 			});
-			m_SphereMesh->AddVertexBuffer(vertexBuffer.get());
+			m_SphereMesh->AddVertexBuffer(m_SphereVertexBuffer.get());
 			
-			auto indexBuffer = std::make_shared<IndexBuffer>(sphereData.Indices.data(), 
+			m_SphereIndexBuffer = std::make_shared<IndexBuffer>(
+				sphereData.Indices.data(), 
 				sphereData.Indices.size());
-			m_SphereMesh->SetIndexBuffer(indexBuffer.get());
+			m_SphereMesh->SetIndexBuffer(m_SphereIndexBuffer.get());
 		}
 		
 		// Create capsule mesh
@@ -748,17 +752,19 @@ namespace HazelEditor {
 			MeshData capsuleData = MeshGenerator::CreateCapsule(1.0f, 0.5f, 32);
 			
 			m_CapsuleMesh = std::make_shared<VertexArray>();
-			auto vertexBuffer = std::make_shared<VertexBuffer>(capsuleData.Vertices.data(), 
+			m_CapsuleVertexBuffer = std::make_shared<VertexBuffer>(
+				capsuleData.Vertices.data(), 
 				capsuleData.Vertices.size() * sizeof(float));
-			vertexBuffer->SetLayout({
+			m_CapsuleVertexBuffer->SetLayout({
 				{ ShaderDataType::Float3, "a_Position" },
 				{ ShaderDataType::Float3, "a_Normal" }
 			});
-			m_CapsuleMesh->AddVertexBuffer(vertexBuffer.get());
+			m_CapsuleMesh->AddVertexBuffer(m_CapsuleVertexBuffer.get());
 			
-			auto indexBuffer = std::make_shared<IndexBuffer>(capsuleData.Indices.data(), 
+			m_CapsuleIndexBuffer = std::make_shared<IndexBuffer>(
+				capsuleData.Indices.data(), 
 				capsuleData.Indices.size());
-			m_CapsuleMesh->SetIndexBuffer(indexBuffer.get());
+			m_CapsuleMesh->SetIndexBuffer(m_CapsuleIndexBuffer.get());
 		}
 	}
 

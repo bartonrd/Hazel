@@ -109,8 +109,16 @@ namespace HazelEditor {
 		
 		// Mesh buffers
 		std::shared_ptr<Hazel::VertexArray> m_CubeMesh;
+		std::shared_ptr<Hazel::VertexBuffer> m_CubeVertexBuffer;
+		std::shared_ptr<Hazel::IndexBuffer> m_CubeIndexBuffer;
+		
 		std::shared_ptr<Hazel::VertexArray> m_SphereMesh;
+		std::shared_ptr<Hazel::VertexBuffer> m_SphereVertexBuffer;
+		std::shared_ptr<Hazel::IndexBuffer> m_SphereIndexBuffer;
+		
 		std::shared_ptr<Hazel::VertexArray> m_CapsuleMesh;
+		std::shared_ptr<Hazel::VertexBuffer> m_CapsuleVertexBuffer;
+		std::shared_ptr<Hazel::IndexBuffer> m_CapsuleIndexBuffer;
 		
 		// Scene view state
 		glm::vec2 m_ViewportSize = { 1280.0f, 720.0f };
