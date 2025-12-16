@@ -60,6 +60,13 @@ namespace Hazel
 		// Shutdown scripting engine
 		ScriptEngine::Shutdown();
 
+		// Detach all layers before shutting down GLFW
+		// This ensures ImGui can properly cleanup platform windows
+		for (Layer* layer : m_LayerStack)
+		{
+			layer->OnDetach();
+		}
+
 		// Cleanup GLFW
 		if (m_Window)
 		{

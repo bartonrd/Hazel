@@ -5,9 +5,9 @@ namespace Hazel {
 
 	LayerStack::~LayerStack()
 	{
+		// Delete layers (OnDetach is called in Application destructor)
 		for (Layer* layer : m_Layers)
 		{
-			layer->OnDetach();
 			delete layer;
 		}
 	}
