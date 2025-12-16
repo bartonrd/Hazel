@@ -31,13 +31,26 @@ namespace Hazel
 	void Application::Run()
 	{
 		HZ_INFO("Application::Run() - Main loop started");
+		HZ_INFO("Note: This is a console-based simulation showing editor structure");
+		HZ_INFO("For full GUI rendering, integrate ImGui library with a rendering backend");
+		HZ_INFO("");
 
-		while (m_Running)
+		int frameCount = 0;
+		const int maxFrames = 5; // Run a few frames to show the editor is active
+
+		while (m_Running && frameCount < maxFrames)
 		{
-			// Calculate delta time
-			float time = 0.0f; // Would get from platform timer
-			float deltaTime = time - m_LastFrameTime;
-			m_LastFrameTime = time;
+			// Calculate delta time (simulated)
+			float deltaTime = 0.016f; // ~60 FPS
+			m_LastFrameTime += deltaTime;
+
+			// Frame separator for clarity
+			if (frameCount > 0)
+			{
+				HZ_INFO("========================================");
+				HZ_INFO("Frame {0} - Editor Update", frameCount + 1);
+				HZ_INFO("========================================");
+			}
 
 			// Update all layers
 			for (Layer* layer : m_LayerStack)
@@ -51,12 +64,16 @@ namespace Hazel
 				layer->OnImGuiRender();
 			}
 
-			// Simple exit for now - would be event-driven in full implementation
-			// For demonstration, we'll break after one iteration
-			break;
+			frameCount++;
+			
+			// In a real implementation, this would be:
+			// - Poll events from window system
+			// - Swap buffers
+			// - Sleep to maintain target framerate
 		}
 
-		HZ_INFO("Application::Run() - Main loop ended");
+		HZ_INFO("");
+		HZ_INFO("Application::Run() - Main loop ended after {0} frames", frameCount);
 	}
 
 	void Application::PushLayer(Layer* layer)
