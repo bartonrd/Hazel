@@ -2,6 +2,24 @@
 
 ## Build Errors Fixed
 
+### Error: GLFW Unsafe String Function Warnings (C4996)
+
+**Errors:**
+- `C4996 'strcpy': This function or variable may be unsafe`
+- `C4996 'strncpy': This function or variable may be unsafe`
+- `C4996 'sprintf': This function or variable may be unsafe`
+- `C4996 'sscanf': This function or variable may be unsafe`
+- `C4996 'strtok': This function or variable may be unsafe`
+
+**Cause:**
+GLFW vendor code uses standard C string functions (strcpy, strncpy, sprintf, etc.) which Visual Studio flags as potentially unsafe, recommending the use of secure versions (strcpy_s, strncpy_s, etc.).
+
+**Solution Applied:**
+Added `_CRT_SECURE_NO_WARNINGS` preprocessor definition to Hazel.vcxproj for both Debug and Release configurations. This suppresses the warnings for vendor code that we don't control.
+
+**Result:**
+GLFW compiles without warnings. This is safe because GLFW is a well-tested library and modifying vendor code is not recommended.
+
 ### Error: ImGui Docking Features Not Found
 
 **Errors:**
