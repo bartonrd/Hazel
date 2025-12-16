@@ -715,7 +715,7 @@ namespace HazelEditor {
 			m_CubeMesh = std::make_shared<VertexArray>();
 			m_CubeVertexBuffer = std::make_shared<VertexBuffer>(
 				cubeData.Vertices.data(), 
-				cubeData.Vertices.size() * sizeof(float));
+				static_cast<unsigned int>(cubeData.Vertices.size() * sizeof(float)));
 			m_CubeVertexBuffer->SetLayout({
 				{ ShaderDataType::Float3, "a_Position" },
 				{ ShaderDataType::Float3, "a_Normal" }
@@ -724,7 +724,7 @@ namespace HazelEditor {
 			
 			m_CubeIndexBuffer = std::make_shared<IndexBuffer>(
 				cubeData.Indices.data(), 
-				cubeData.Indices.size());
+				static_cast<unsigned int>(cubeData.Indices.size()));
 			m_CubeMesh->SetIndexBuffer(m_CubeIndexBuffer.get());
 		}
 		
@@ -735,7 +735,7 @@ namespace HazelEditor {
 			m_SphereMesh = std::make_shared<VertexArray>();
 			m_SphereVertexBuffer = std::make_shared<VertexBuffer>(
 				sphereData.Vertices.data(), 
-				sphereData.Vertices.size() * sizeof(float));
+				static_cast<unsigned int>(sphereData.Vertices.size() * sizeof(float)));
 			m_SphereVertexBuffer->SetLayout({
 				{ ShaderDataType::Float3, "a_Position" },
 				{ ShaderDataType::Float3, "a_Normal" }
@@ -744,7 +744,7 @@ namespace HazelEditor {
 			
 			m_SphereIndexBuffer = std::make_shared<IndexBuffer>(
 				sphereData.Indices.data(), 
-				sphereData.Indices.size());
+				static_cast<unsigned int>(sphereData.Indices.size()));
 			m_SphereMesh->SetIndexBuffer(m_SphereIndexBuffer.get());
 		}
 		
@@ -755,7 +755,7 @@ namespace HazelEditor {
 			m_CapsuleMesh = std::make_shared<VertexArray>();
 			m_CapsuleVertexBuffer = std::make_shared<VertexBuffer>(
 				capsuleData.Vertices.data(), 
-				capsuleData.Vertices.size() * sizeof(float));
+				static_cast<unsigned int>(capsuleData.Vertices.size() * sizeof(float)));
 			m_CapsuleVertexBuffer->SetLayout({
 				{ ShaderDataType::Float3, "a_Position" },
 				{ ShaderDataType::Float3, "a_Normal" }
@@ -764,7 +764,7 @@ namespace HazelEditor {
 			
 			m_CapsuleIndexBuffer = std::make_shared<IndexBuffer>(
 				capsuleData.Indices.data(), 
-				capsuleData.Indices.size());
+				static_cast<unsigned int>(capsuleData.Indices.size()));
 			m_CapsuleMesh->SetIndexBuffer(m_CapsuleIndexBuffer.get());
 		}
 	}

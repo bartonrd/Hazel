@@ -7,6 +7,8 @@
 #include "Hazel/Renderer/Buffer.h"
 #include "Hazel/Renderer/Material.h"
 #include "Hazel/Renderer/Shader.h"
+#include "Hazel/Renderer/Light.h"
+#include "Hazel/Renderer/Renderer.h"
 #include <string>
 #include <vector>
 #include <memory>
