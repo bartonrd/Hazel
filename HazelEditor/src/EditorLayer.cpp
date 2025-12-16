@@ -62,10 +62,15 @@ namespace HazelEditor {
 		if (opt_fullscreen)
 		{
 			ImGuiViewport* viewport = ImGui::GetMainViewport();
+			
 			// Position the dockspace below the menu bar and toolbar
-			// The menu bar and toolbar take up space from viewport->WorkPos
-			ImGui::SetNextWindowPos(viewport->WorkPos);
-			ImGui::SetNextWindowSize(viewport->WorkSize);
+			// WorkPos already accounts for the menu bar, so we just need to add toolbar height
+			float toolbarHeight = 40.0f; // Must match the height in DrawToolbar()
+			ImVec2 dockspacePos = ImVec2(viewport->WorkPos.x, viewport->WorkPos.y + toolbarHeight);
+			ImVec2 dockspaceSize = ImVec2(viewport->WorkSize.x, viewport->WorkSize.y - toolbarHeight);
+			
+			ImGui::SetNextWindowPos(dockspacePos);
+			ImGui::SetNextWindowSize(dockspaceSize);
 			ImGui::SetNextWindowViewport(viewport->ID);
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
