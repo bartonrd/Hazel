@@ -12,6 +12,13 @@ namespace Hazel {
 		if (s_RendererInitialized)
 			return;
 
+		// Initialize OpenGL loader
+		if (imgl3wInit() != 0)
+		{
+			HZ_ERROR("Failed to initialize OpenGL loader");
+			return;
+		}
+
 		s_SceneData = new SceneData();
 		s_RendererInitialized = true;
 		
