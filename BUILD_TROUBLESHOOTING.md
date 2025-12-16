@@ -2,6 +2,31 @@
 
 ## Build Errors Fixed
 
+### Runtime Error: ImGui Context Access Violation
+
+**Error:**
+- `Exception thrown: read access violation. this was 0x1FB0.` at imgui.h line 2220
+- Application crashes when starting HazelEditor
+- Crash occurs when ImGui functions are called
+
+**Cause:**
+Both Hazel.dll and HazelEditor.exe compile their own copies of ImGui, creating separate global `GImGui` context variables. When EditorLayer calls ImGui functions, it accesses HazelEditor's context which was never initialized (only Hazel's context was initialized in ImGuiLayer::OnAttach).
+
+**Solution Applied:**
+Created context sharing across DLL boundary:
+1. Added `ImGuiLayer::GetContext()` in Hazel.dll to export the initialized ImGui context pointer
+2. EditorLayer calls `ImGui::SetCurrentContext(Hazel::ImGuiLayer::GetContext())` in OnAttach
+3. Both modules compile ImGui, but HazelEditor explicitly uses Hazel's initialized context
+
+**Why This Works:**
+- Hazel.dll creates and initializes the ImGui context in ImGuiLayer::OnAttach
+- HazelEditor.exe compiles ImGui (needed for function definitions) but doesn't create its own context
+- `SetCurrentContext()` tells HazelEditor's ImGui code to use Hazel's context pointer
+- All ImGui calls from EditorLayer now operate on the properly initialized context
+
+**Result:**
+No more access violations. The application runs successfully with all ImGui panels rendering correctly.
+
 ### Error: HazelEditor GLFW Linker Errors (LNK2019)
 
 **Errors:**
