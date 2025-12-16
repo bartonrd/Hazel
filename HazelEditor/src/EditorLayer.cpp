@@ -122,8 +122,8 @@ namespace HazelEditor {
 		InitializeMeshBuffers();
 
 		// Create sample scene hierarchy
-		m_Entities.emplace_back("Main Camera", 1);
-		m_Entities.emplace_back("Directional Light", 2);
+		m_Entities.emplace_back("Main Camera", m_NextEntityID++);
+		m_Entities.emplace_back("Directional Light", m_NextEntityID++);
 		
 		// Add a default cube to demonstrate
 		CreateEntity("Cube", MeshType::Cube);
@@ -277,6 +277,7 @@ namespace HazelEditor {
 					{
 						CreateEntity("Capsule", MeshType::Capsule);
 					}
+					// TODO: Implement Cylinder and Plane mesh generation
 					if (ImGui::MenuItem("Cylinder")) {}
 					if (ImGui::MenuItem("Plane")) {}
 					ImGui::EndMenu();
