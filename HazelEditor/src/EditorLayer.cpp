@@ -671,48 +671,51 @@ namespace HazelEditor {
 		{
 			ImGui::SetMouseCursor(ImGuiMouseCursor_None);
 			
-			// Enable cursor disabled mode to hide cursor and provide unlimited virtual movement
+			// Enable cursor disabled mode to hide cursor
 			if (!m_CameraRotating)
 			{
 				Hazel::Application::Get().SetCursorMode(Hazel::CursorMode::Disabled);
+				m_CameraRotating = true;
 			}
 			
 			ImVec2 mousePos = ImGui::GetMousePos();
 			
-			// Constrain cursor to viewport bounds BEFORE calculating delta
-			// This prevents fast mouse movement from escaping the viewport
+			// Initialize last mouse position on first frame
+			if (m_LastMousePos.x == 0.0f && m_LastMousePos.y == 0.0f)
+			{
+				m_LastMousePos = glm::vec2(mousePos.x, mousePos.y);
+			}
+			
+			// Calculate delta from current position
+			glm::vec2 currentPos(mousePos.x, mousePos.y);
+			glm::vec2 delta = currentPos - m_LastMousePos;
+			
+			// Clamp delta to prevent extreme jumps when cursor repositions
+			const float maxDelta = 100.0f;
+			delta.x = glm::clamp(delta.x, -maxDelta, maxDelta);
+			delta.y = glm::clamp(delta.y, -maxDelta, maxDelta);
+			
+			// Apply camera rotation
+			m_EditorCamera->ProcessMouseMovement(delta.x, -delta.y);
+			
+			// Check if cursor is outside viewport bounds
 			bool outsideBounds = (mousePos.x < m_ViewportBounds[0].x || mousePos.x > m_ViewportBounds[1].x ||
 			                      mousePos.y < m_ViewportBounds[0].y || mousePos.y > m_ViewportBounds[1].y);
 			
 			if (outsideBounds)
 			{
-				// Clamp cursor position to viewport bounds
-				float clampedX = glm::clamp(mousePos.x, m_ViewportBounds[0].x + 1.0f, m_ViewportBounds[1].x - 1.0f);
-				float clampedY = glm::clamp(mousePos.y, m_ViewportBounds[0].y + 1.0f, m_ViewportBounds[1].y - 1.0f);
+				// Reset cursor to center of viewport to keep it contained
+				glm::vec2 viewportCenter = (m_ViewportBounds[0] + m_ViewportBounds[1]) * 0.5f;
 				
-				// Temporarily switch to normal mode to reposition, then back to disabled
-				Hazel::Application::Get().SetCursorMode(Hazel::CursorMode::Normal);
-				Hazel::Application::Get().SetCursorPosition(clampedX, clampedY);
-				Hazel::Application::Get().SetCursorMode(Hazel::CursorMode::Disabled);
-				
-				// Use clamped position for all calculations
-				mousePos.x = clampedX;
-				mousePos.y = clampedY;
+				// Reposition cursor without changing mode (stays in Disabled mode)
+				// Note: glfwSetCursorPos works even in DISABLED mode for raw input
+				Hazel::Application::Get().SetCursorPosition(viewportCenter.x, viewportCenter.y);
+				m_LastMousePos = viewportCenter;
 			}
-			
-			if (!m_CameraRotating)
+			else
 			{
-				m_LastMousePos = glm::vec2(mousePos.x, mousePos.y);
-				m_CameraRotating = true;
+				m_LastMousePos = currentPos;
 			}
-			
-			// Calculate delta from current position (which is now guaranteed to be within bounds)
-			glm::vec2 currentPos(mousePos.x, mousePos.y);
-			glm::vec2 delta = currentPos - m_LastMousePos;
-			m_LastMousePos = currentPos;
-			
-			// Apply camera rotation
-			m_EditorCamera->ProcessMouseMovement(delta.x, -delta.y);
 		}
 		else
 		{
@@ -721,6 +724,7 @@ namespace HazelEditor {
 			{
 				Hazel::Application::Get().SetCursorMode(Hazel::CursorMode::Normal);
 				m_CameraRotating = false;
+				m_LastMousePos = glm::vec2(0.0f, 0.0f); // Reset for next time
 			}
 		}
 		
