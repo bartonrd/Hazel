@@ -1,23 +1,23 @@
 #include "OpenGLLoader.h"
 
 // Function pointer definitions
-PFNGLDEPTHFUNCPROC glad_glDepthFunc = NULL;
-PFNGLBLENDFUNCPROC glad_glBlendFunc = NULL;
-PFNGLUNIFORM1FPROC glad_glUniform1f = NULL;
-PFNGLUNIFORM3FPROC glad_glUniform3f = NULL;
-PFNGLUNIFORM4FPROC glad_glUniform4f = NULL;
-PFNGLGENFRAMEBUFFERSPROC glad_glGenFramebuffers = NULL;
-PFNGLBINDFRAMEBUFFERPROC glad_glBindFramebuffer = NULL;
-PFNGLFRAMEBUFFERTEXTURE2DPROC glad_glFramebufferTexture2D = NULL;
-PFNGLGENRENDERBUFFERSPROC glad_glGenRenderbuffers = NULL;
-PFNGLBINDRENDERBUFFERPROC glad_glBindRenderbuffer = NULL;
-PFNGLRENDERBUFFERSTORAGEPROC glad_glRenderbufferStorage = NULL;
-PFNGLFRAMEBUFFERRENDERBUFFERPROC glad_glFramebufferRenderbuffer = NULL;
-PFNGLCHECKFRAMEBUFFERSTATUSPROC glad_glCheckFramebufferStatus = NULL;
-PFNGLDELETEFRAMEBUFFERSPROC glad_glDeleteFramebuffers = NULL;
-PFNGLDELETERENDERBUFFERSPROC glad_glDeleteRenderbuffers = NULL;
+HAZEL_API PFNGLDEPTHFUNCPROC glad_glDepthFunc = NULL;
+HAZEL_API PFNGLBLENDFUNCPROC glad_glBlendFunc = NULL;
+HAZEL_API PFNGLUNIFORM1FPROC glad_glUniform1f = NULL;
+HAZEL_API PFNGLUNIFORM3FPROC glad_glUniform3f = NULL;
+HAZEL_API PFNGLUNIFORM4FPROC glad_glUniform4f = NULL;
+HAZEL_API PFNGLGENFRAMEBUFFERSPROC glad_glGenFramebuffers = NULL;
+HAZEL_API PFNGLBINDFRAMEBUFFERPROC glad_glBindFramebuffer = NULL;
+HAZEL_API PFNGLFRAMEBUFFERTEXTURE2DPROC glad_glFramebufferTexture2D = NULL;
+HAZEL_API PFNGLGENRENDERBUFFERSPROC glad_glGenRenderbuffers = NULL;
+HAZEL_API PFNGLBINDRENDERBUFFERPROC glad_glBindRenderbuffer = NULL;
+HAZEL_API PFNGLRENDERBUFFERSTORAGEPROC glad_glRenderbufferStorage = NULL;
+HAZEL_API PFNGLFRAMEBUFFERRENDERBUFFERPROC glad_glFramebufferRenderbuffer = NULL;
+HAZEL_API PFNGLCHECKFRAMEBUFFERSTATUSPROC glad_glCheckFramebufferStatus = NULL;
+HAZEL_API PFNGLDELETEFRAMEBUFFERSPROC glad_glDeleteFramebuffers = NULL;
+HAZEL_API PFNGLDELETERENDERBUFFERSPROC glad_glDeleteRenderbuffers = NULL;
 
-void HazelOpenGLInit()
+HAZEL_API void HazelOpenGLInit()
 {
 	// Use ImGui's OpenGL loader to get function pointers
 	// This works cross-platform and handles extension loading properly

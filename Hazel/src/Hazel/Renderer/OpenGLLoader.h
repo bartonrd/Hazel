@@ -3,6 +3,13 @@
 // This file extends imgui_impl_opengl3_loader.h with additional OpenGL functions
 // needed by the Hazel renderer that aren't used by ImGui itself
 
+#include "../Core.h"
+
+// Define GL3W_API to export/import symbols from the DLL
+#ifndef GL3W_API
+#define GL3W_API HAZEL_API
+#endif
+
 #include <imgui_impl_opengl3_loader.h>
 
 #ifdef __cplusplus
@@ -77,97 +84,97 @@ extern "C" {
 // Additional OpenGL function declarations not in ImGui's minimal loader
 #ifndef glDepthFunc
 typedef void (APIENTRYP PFNGLDEPTHFUNCPROC) (GLenum func);
-extern PFNGLDEPTHFUNCPROC glad_glDepthFunc;
+HAZEL_API extern PFNGLDEPTHFUNCPROC glad_glDepthFunc;
 #define glDepthFunc glad_glDepthFunc
 #endif
 
 #ifndef glBlendFunc
 typedef void (APIENTRYP PFNGLBLENDFUNCPROC) (GLenum sfactor, GLenum dfactor);
-extern PFNGLBLENDFUNCPROC glad_glBlendFunc;
+HAZEL_API extern PFNGLBLENDFUNCPROC glad_glBlendFunc;
 #define glBlendFunc glad_glBlendFunc
 #endif
 
 #ifndef glUniform1f
 typedef void (APIENTRYP PFNGLUNIFORM1FPROC) (GLint location, GLfloat v0);
-extern PFNGLUNIFORM1FPROC glad_glUniform1f;
+HAZEL_API extern PFNGLUNIFORM1FPROC glad_glUniform1f;
 #define glUniform1f glad_glUniform1f
 #endif
 
 #ifndef glUniform3f
 typedef void (APIENTRYP PFNGLUNIFORM3FPROC) (GLint location, GLfloat v0, GLfloat v1, GLfloat v2);
-extern PFNGLUNIFORM3FPROC glad_glUniform3f;
+HAZEL_API extern PFNGLUNIFORM3FPROC glad_glUniform3f;
 #define glUniform3f glad_glUniform3f
 #endif
 
 #ifndef glUniform4f
 typedef void (APIENTRYP PFNGLUNIFORM4FPROC) (GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3);
-extern PFNGLUNIFORM4FPROC glad_glUniform4f;
+HAZEL_API extern PFNGLUNIFORM4FPROC glad_glUniform4f;
 #define glUniform4f glad_glUniform4f
 #endif
 
 #ifndef glGenFramebuffers
 typedef void (APIENTRYP PFNGLGENFRAMEBUFFERSPROC) (GLsizei n, GLuint *framebuffers);
-extern PFNGLGENFRAMEBUFFERSPROC glad_glGenFramebuffers;
+HAZEL_API extern PFNGLGENFRAMEBUFFERSPROC glad_glGenFramebuffers;
 #define glGenFramebuffers glad_glGenFramebuffers
 #endif
 
 #ifndef glBindFramebuffer
 typedef void (APIENTRYP PFNGLBINDFRAMEBUFFERPROC) (GLenum target, GLuint framebuffer);
-extern PFNGLBINDFRAMEBUFFERPROC glad_glBindFramebuffer;
+HAZEL_API extern PFNGLBINDFRAMEBUFFERPROC glad_glBindFramebuffer;
 #define glBindFramebuffer glad_glBindFramebuffer
 #endif
 
 #ifndef glFramebufferTexture2D
 typedef void (APIENTRYP PFNGLFRAMEBUFFERTEXTURE2DPROC) (GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
-extern PFNGLFRAMEBUFFERTEXTURE2DPROC glad_glFramebufferTexture2D;
+HAZEL_API extern PFNGLFRAMEBUFFERTEXTURE2DPROC glad_glFramebufferTexture2D;
 #define glFramebufferTexture2D glad_glFramebufferTexture2D
 #endif
 
 #ifndef glGenRenderbuffers
 typedef void (APIENTRYP PFNGLGENRENDERBUFFERSPROC) (GLsizei n, GLuint *renderbuffers);
-extern PFNGLGENRENDERBUFFERSPROC glad_glGenRenderbuffers;
+HAZEL_API extern PFNGLGENRENDERBUFFERSPROC glad_glGenRenderbuffers;
 #define glGenRenderbuffers glad_glGenRenderbuffers
 #endif
 
 #ifndef glBindRenderbuffer
 typedef void (APIENTRYP PFNGLBINDRENDERBUFFERPROC) (GLenum target, GLuint renderbuffer);
-extern PFNGLBINDRENDERBUFFERPROC glad_glBindRenderbuffer;
+HAZEL_API extern PFNGLBINDRENDERBUFFERPROC glad_glBindRenderbuffer;
 #define glBindRenderbuffer glad_glBindRenderbuffer
 #endif
 
 #ifndef glRenderbufferStorage
 typedef void (APIENTRYP PFNGLRENDERBUFFERSTORAGEPROC) (GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
-extern PFNGLRENDERBUFFERSTORAGEPROC glad_glRenderbufferStorage;
+HAZEL_API extern PFNGLRENDERBUFFERSTORAGEPROC glad_glRenderbufferStorage;
 #define glRenderbufferStorage glad_glRenderbufferStorage
 #endif
 
 #ifndef glFramebufferRenderbuffer
 typedef void (APIENTRYP PFNGLFRAMEBUFFERRENDERBUFFERPROC) (GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
-extern PFNGLFRAMEBUFFERRENDERBUFFERPROC glad_glFramebufferRenderbuffer;
+HAZEL_API extern PFNGLFRAMEBUFFERRENDERBUFFERPROC glad_glFramebufferRenderbuffer;
 #define glFramebufferRenderbuffer glad_glFramebufferRenderbuffer
 #endif
 
 #ifndef glCheckFramebufferStatus
 typedef GLenum (APIENTRYP PFNGLCHECKFRAMEBUFFERSTATUSPROC) (GLenum target);
-extern PFNGLCHECKFRAMEBUFFERSTATUSPROC glad_glCheckFramebufferStatus;
+HAZEL_API extern PFNGLCHECKFRAMEBUFFERSTATUSPROC glad_glCheckFramebufferStatus;
 #define glCheckFramebufferStatus glad_glCheckFramebufferStatus
 #endif
 
 #ifndef glDeleteFramebuffers
 typedef void (APIENTRYP PFNGLDELETEFRAMEBUFFERSPROC) (GLsizei n, const GLuint *framebuffers);
-extern PFNGLDELETEFRAMEBUFFERSPROC glad_glDeleteFramebuffers;
+HAZEL_API extern PFNGLDELETEFRAMEBUFFERSPROC glad_glDeleteFramebuffers;
 #define glDeleteFramebuffers glad_glDeleteFramebuffers
 #endif
 
 #ifndef glDeleteRenderbuffers
 typedef void (APIENTRYP PFNGLDELETERENDERBUFFERSPROC) (GLsizei n, const GLuint *renderbuffers);
-extern PFNGLDELETERENDERBUFFERSPROC glad_glDeleteRenderbuffers;
+HAZEL_API extern PFNGLDELETERENDERBUFFERSPROC glad_glDeleteRenderbuffers;
 #define glDeleteRenderbuffers glad_glDeleteRenderbuffers
 #endif
 
 // Function to initialize our additional OpenGL functions
 // Call this after imgl3wInit()
-void HazelOpenGLInit();
+HAZEL_API void HazelOpenGLInit();
 
 #ifdef __cplusplus
 }
