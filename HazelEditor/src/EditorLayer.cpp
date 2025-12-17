@@ -737,6 +737,7 @@ namespace HazelEditor {
 		Hazel::Renderer::BeginScene(*m_EditorCamera);
 		
 		// Render all entities with meshes
+		int entitiesRendered = 0;
 		for (auto& entity : m_Entities)
 		{
 			if (entity.Mesh != MeshType::None)
@@ -752,8 +753,18 @@ namespace HazelEditor {
 					
 					// Submit for rendering
 					Hazel::Renderer::Submit(meshVA, m_DefaultMaterial, transform);
+					entitiesRendered++;
+				}
+				else
+				{
+					HZ_WARN("Mesh vertex array is null for entity: " + entity.Name);
 				}
 			}
+		}
+		
+		if (entitiesRendered == 0)
+		{
+			HZ_WARN("No entities were rendered in scene");
 		}
 		
 		Hazel::Renderer::EndScene();
@@ -766,9 +777,12 @@ namespace HazelEditor {
 	{
 		using namespace Hazel;
 		
+		HZ_INFO("Initializing mesh buffers...");
+		
 		// Create cube mesh
 		{
 			MeshData cubeData = MeshGenerator::CreateCube(1.0f);
+			HZ_INFO("Cube mesh data: " + std::to_string(cubeData.Vertices.size()) + " vertices, " + std::to_string(cubeData.Indices.size()) + " indices");
 			
 			m_CubeMesh = std::make_shared<VertexArray>();
 			m_CubeVertexBuffer = std::make_shared<VertexBuffer>(
