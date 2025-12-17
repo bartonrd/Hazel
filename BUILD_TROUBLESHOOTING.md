@@ -93,6 +93,32 @@ Added `_CRT_SECURE_NO_WARNINGS` preprocessor definition to Hazel.vcxproj for bot
 **Result:**
 GLFW compiles without warnings. This is safe because GLFW is a well-tested library and modifying vendor code is not recommended.
 
+### Error: OpenGL Loader Symbol Linker Errors (LNK2001)
+
+**Errors:**
+- `LNK2001 unresolved external symbol imgl3wProcs`
+- `LNK2001 unresolved external symbol glad_glCheckFramebufferStatus`
+- `LNK1120 2 unresolved externals`
+
+**Cause:**
+The `imgl3wProcs` symbol is defined in imgui_impl_opengl3_loader.h (included in imgui_impl_opengl3.cpp) and compiled into Hazel.dll. The `glad_glCheckFramebufferStatus` and other OpenGL function pointers are defined in OpenGLLoader.cpp, also compiled into Hazel.dll. However, these symbols were not exported from the DLL, so HazelEditor.exe couldn't link to them.
+
+**Solution Applied:**
+1. Modified OpenGLLoader.h to define `GL3W_API` as `HAZEL_API` before including imgui_impl_opengl3_loader.h
+   - This exports `imgl3wProcs` from Hazel.dll and imports it in HazelEditor.exe
+2. Added `HAZEL_API` to all OpenGL function pointer declarations in OpenGLLoader.h
+3. Added `HAZEL_API` to all OpenGL function pointer definitions in OpenGLLoader.cpp
+4. Added `HAZEL_API` to the `HazelOpenGLInit()` function
+
+**Why This Works:**
+- When building Hazel.dll (with `HZ_BUILD_DLL` defined), `HAZEL_API` expands to `__declspec(dllexport)`
+- When building HazelEditor.exe (without `HZ_BUILD_DLL` defined), `HAZEL_API` expands to `__declspec(dllimport)`
+- The `GL3W_API` macro controls export/import of `imgl3wProcs` and related ImGui OpenGL loader symbols
+- All OpenGL function pointers are now properly exported from the DLL and importable by HazelEditor
+
+**Result:**
+All OpenGL loader linker errors are resolved. HazelEditor can now use OpenGL functions through the exported function pointers.
+
 ### Error: ImGui Docking Features Not Found
 
 **Errors:**
