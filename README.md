@@ -10,10 +10,10 @@ The Hazel Editor provides a professional, Unity-inspired interface with **real g
 - **Scene Hierarchy**: Interactive tree view of all game objects with selection and parent-child relationships
 - **Inspector**: Real-time property editor with drag controls for Transform (Position, Rotation, Scale) and component fields
 - **Console**: Color-coded log viewer with filters (Trace/Info/Warn/Error/Fatal) and auto-scroll
-- **Scene View**: 3D scene editor viewport with tool selection (Q/W/E/R for Hand/Move/Rotate/Scale)
+- **Scene View**: 3D scene editor viewport with **interactive transform gizmos** and tool selection (Q/W/E/R for Move/Rotate/Scale)
 - **Game View**: Runtime game preview viewport
 - **Asset Browser**: Project asset management with folder tree and file grid
-- **Toolbar**: Play/Pause/Step controls for game testing
+- **Toolbar**: Play/Pause/Step controls for game testing, plus gizmo mode selection
 - **Menu Bar**: Complete menu system (File, Edit, Assets, GameObject, Component, Window, Help)
 
 ### GUI Features
@@ -43,7 +43,26 @@ Built with ImGui and GLFW:
 - **Interactive Widgets**: Buttons, sliders, tree views, text inputs, drag controls
 - **Event Handling**: Mouse clicks, keyboard input, window events
 
-### 2. Logging System
+### 2. Transform Gizmos (NEW!)
+Built with ImGuizmo library for professional 3D manipulation:
+- **Visual Transform Handles**: Drag colored arrows, circles, and handles to transform objects
+- **Three Gizmo Modes**: 
+  - **Translate** (Q/W): Move objects along X/Y/Z axes with red/green/blue arrows
+  - **Rotate** (E): Rotate objects around axes with circular handles
+  - **Scale** (R): Scale objects with axis-aligned handles
+- **Mouse Selection**: Left-click in Scene view to select objects
+- **Real-time Updates**: Transform changes instantly reflected in Inspector panel
+- **Keyboard Shortcuts**: Unity-compatible shortcuts for quick mode switching
+- **Visual Feedback**: Active mode shown in toolbar with brackets
+- **Camera Integration**: Gizmo-aware camera controls with Shift modifier
+
+Usage:
+- Select object in Hierarchy or Scene view
+- Press Q (Move), E (Rotate), or R (Scale)
+- Drag colored handles to transform the object
+- See [GIZMO_USER_GUIDE.md](GIZMO_USER_GUIDE.md) for detailed instructions
+
+### 3. Logging System
 The engine includes a comprehensive logging system with multiple log levels:
 - **Trace**: Detailed diagnostic information
 - **Info**: General informational messages
@@ -60,7 +79,7 @@ HZ_ERROR("Error loading asset");
 HZ_FATAL("Critical system failure");
 ```
 
-### 3. Modular Dockable Windows
+### 4. Modular Dockable Windows
 Built on ImGui, Hazel provides a flexible docking system for editor windows:
 - **Scene Hierarchy**: View and manage scene objects
 - **Inspector/Properties**: Edit component properties
@@ -75,7 +94,7 @@ The ImGui integration supports:
 - Customizable layouts
 - Persistent window configurations
 
-### 4. C# Scripting Support
+### 5. C# Scripting Support
 Hazel integrates the Mono runtime for C# scripting:
 
 **Features:**

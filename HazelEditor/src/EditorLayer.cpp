@@ -3,6 +3,7 @@
 #include "Hazel/Renderer/MeshGenerator.h"
 #include "Hazel/Renderer/OpenGLLoader.h"
 #include <imgui.h>
+#include <ImGuizmo.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <algorithm>
@@ -134,8 +135,13 @@ namespace HazelEditor {
 		m_Entities.back().EntityTransform.Position = glm::vec3(0.0f, 0.0f, 0.0f);
 		m_Entities.back().Color = glm::vec4(0.8f, 0.3f, 0.3f, 1.0f);
 		
+		// Add a sphere for testing
+		CreateEntity("Sphere", MeshType::Sphere);
+		m_Entities.back().EntityTransform.Position = glm::vec3(2.0f, 0.0f, 0.0f);
+		m_Entities.back().Color = glm::vec4(0.3f, 0.8f, 0.3f, 1.0f);
+		
 		// Focus camera on the default cube so it's visible
-		FocusOnEntity(&m_Entities.back());
+		FocusOnEntity(&m_Entities[2]); // Focus on the cube (skip camera and light)
 	}
 
 	void EditorLayer::OnDetach()
@@ -161,6 +167,9 @@ namespace HazelEditor {
 
 	void EditorLayer::OnImGuiRender()
 	{
+		// Initialize ImGuizmo for this frame
+		ImGuizmo::BeginFrame();
+		
 		// Draw the main menu bar at the top (outside dockspace)
 		DrawMenuBar();
 		
@@ -353,7 +362,30 @@ namespace HazelEditor {
 		
 		ImGui::Begin("##Toolbar", nullptr, window_flags);
 		
-		// Center the buttons
+		// Left side - Gizmo mode buttons
+		ImGui::SetCursorPosY((toolbarHeight - ImGui::GetFrameHeight()) * 0.5f);
+		
+		float gizmoButtonWidth = 70.0f;
+		if (ImGui::Button(m_GizmoOperation == GizmoOperation::Translate ? "[Q] Move" : "Q Move", ImVec2(gizmoButtonWidth, 0)))
+		{
+			m_GizmoOperation = GizmoOperation::Translate;
+		}
+		
+		ImGui::SameLine();
+		
+		if (ImGui::Button(m_GizmoOperation == GizmoOperation::Rotate ? "[E] Rotate" : "E Rotate", ImVec2(gizmoButtonWidth, 0)))
+		{
+			m_GizmoOperation = GizmoOperation::Rotate;
+		}
+		
+		ImGui::SameLine();
+		
+		if (ImGui::Button(m_GizmoOperation == GizmoOperation::Scale ? "[R] Scale" : "R Scale", ImVec2(gizmoButtonWidth, 0)))
+		{
+			m_GizmoOperation = GizmoOperation::Scale;
+		}
+		
+		// Center the play/pause/step buttons
 		float buttonWidth = 50.0f;
 		float spacing = ImGui::GetStyle().ItemSpacing.x;
 		float totalWidth = (buttonWidth * 3) + (spacing * 2);
@@ -562,9 +594,75 @@ namespace HazelEditor {
 		uint64_t textureID = m_SceneFramebuffer->GetColorAttachment();
 		ImGui::Image((void*)(intptr_t)textureID, ImVec2(m_ViewportSize.x, m_ViewportSize.y), ImVec2(0, 1), ImVec2(1, 0));
 		
+		// Get viewport bounds for ImGuizmo
+		ImVec2 windowPos = ImGui::GetWindowPos();
+		ImVec2 windowSize = ImGui::GetWindowSize();
+		ImVec2 contentMin = ImGui::GetWindowContentRegionMin();
+		ImVec2 contentMax = ImGui::GetWindowContentRegionMax();
+		
+		m_ViewportBounds[0] = { windowPos.x + contentMin.x, windowPos.y + contentMin.y };
+		m_ViewportBounds[1] = { windowPos.x + contentMax.x, windowPos.y + contentMax.y };
+		
 		// Check if viewport is focused/hovered
 		m_ViewportFocused = ImGui::IsWindowFocused();
 		m_ViewportHovered = ImGui::IsItemHovered();
+		
+		// Handle mouse picking for entity selection
+		if (m_ViewportHovered && !ImGuizmo::IsOver() && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+		{
+			HandleSceneViewMousePicking();
+		}
+		
+		// Draw gizmo for selected entity
+		if (m_SelectedEntity && m_GizmoEnabled && m_SelectedEntity->Mesh != MeshType::None)
+		{
+			ImGuizmo::SetOrthographic(false);
+			ImGuizmo::SetDrawlist();
+			ImGuizmo::SetRect(m_ViewportBounds[0].x, m_ViewportBounds[0].y, 
+			                  m_ViewportBounds[1].x - m_ViewportBounds[0].x, 
+			                  m_ViewportBounds[1].y - m_ViewportBounds[0].y);
+			
+			// Get camera matrices
+			glm::mat4 cameraView = m_EditorCamera->GetViewMatrix();
+			glm::mat4 cameraProjection = m_EditorCamera->GetProjectionMatrix();
+			
+			// Get entity transform matrix
+			glm::mat4 transform = m_SelectedEntity->EntityTransform.GetTransformMatrix();
+			
+			// Determine ImGuizmo operation
+			ImGuizmo::OPERATION operation = ImGuizmo::TRANSLATE;
+			switch (m_GizmoOperation)
+			{
+			case GizmoOperation::Translate:
+				operation = ImGuizmo::TRANSLATE;
+				break;
+			case GizmoOperation::Rotate:
+				operation = ImGuizmo::ROTATE;
+				break;
+			case GizmoOperation::Scale:
+				operation = ImGuizmo::SCALE;
+				break;
+			}
+			
+			// Manipulate the transform
+			ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
+			                     operation, ImGuizmo::WORLD, glm::value_ptr(transform));
+			
+			// If the gizmo was used, update the entity transform
+			if (ImGuizmo::IsUsing())
+			{
+				// Decompose the transform matrix back to position, rotation, scale
+				glm::vec3 position, rotation, scale;
+				ImGuizmo::DecomposeMatrixToComponents(glm::value_ptr(transform),
+				                                       glm::value_ptr(position),
+				                                       glm::value_ptr(rotation),
+				                                       glm::value_ptr(scale));
+				
+				m_SelectedEntity->EntityTransform.Position = position;
+				m_SelectedEntity->EntityTransform.Rotation = rotation;
+				m_SelectedEntity->EntityTransform.Scale = scale;
+			}
+		}
 		
 		// Handle mouse input for camera rotation
 		if (m_ViewportHovered && ImGui::IsMouseDown(ImGuiMouseButton_Right))
@@ -593,12 +691,24 @@ namespace HazelEditor {
 		// Only allow movement when right mouse button is held down (flying camera mode)
 		if (m_ViewportHovered && ImGui::IsMouseDown(ImGuiMouseButton_Right))
 		{
-			m_EditorCamera->SetMoveForward(ImGui::IsKeyDown(ImGuiKey_W));
-			m_EditorCamera->SetMoveBackward(ImGui::IsKeyDown(ImGuiKey_S));
-			m_EditorCamera->SetMoveLeft(ImGui::IsKeyDown(ImGuiKey_A));
-			m_EditorCamera->SetMoveRight(ImGui::IsKeyDown(ImGuiKey_D));
-			m_EditorCamera->SetMoveUp(ImGui::IsKeyDown(ImGuiKey_E));
-			m_EditorCamera->SetMoveDown(ImGui::IsKeyDown(ImGuiKey_Q));
+			// Gizmo mode shortcuts (Q, W, E, R)
+			if (ImGui::IsKeyPressed(ImGuiKey_Q))
+				m_GizmoOperation = GizmoOperation::Translate; // Q for move (like Unity)
+			if (ImGui::IsKeyPressed(ImGuiKey_W) && !ImGui::IsKeyDown(ImGuiKey_LeftShift))
+				m_GizmoOperation = GizmoOperation::Translate; // W for translate
+			if (ImGui::IsKeyPressed(ImGuiKey_E) && !ImGui::IsKeyDown(ImGuiKey_LeftShift))
+				m_GizmoOperation = GizmoOperation::Rotate;    // E for rotate
+			if (ImGui::IsKeyPressed(ImGuiKey_R))
+				m_GizmoOperation = GizmoOperation::Scale;      // R for scale
+			
+			// Camera movement (WASD + QE when shift is held, or when gizmo is translate mode)
+			bool moveCameraWithWASD = ImGui::IsKeyDown(ImGuiKey_LeftShift) || m_GizmoOperation != GizmoOperation::Translate;
+			m_EditorCamera->SetMoveForward(moveCameraWithWASD && ImGui::IsKeyDown(ImGuiKey_W));
+			m_EditorCamera->SetMoveBackward(moveCameraWithWASD && ImGui::IsKeyDown(ImGuiKey_S));
+			m_EditorCamera->SetMoveLeft(moveCameraWithWASD && ImGui::IsKeyDown(ImGuiKey_A));
+			m_EditorCamera->SetMoveRight(moveCameraWithWASD && ImGui::IsKeyDown(ImGuiKey_D));
+			m_EditorCamera->SetMoveUp(moveCameraWithWASD && ImGui::IsKeyDown(ImGuiKey_E));
+			m_EditorCamera->SetMoveDown(moveCameraWithWASD && ImGui::IsKeyDown(ImGuiKey_Q));
 		}
 		else
 		{
@@ -907,6 +1017,56 @@ namespace HazelEditor {
 		default:
 			return nullptr;
 		}
+	}
+
+	void EditorLayer::HandleSceneViewMousePicking()
+	{
+		// Get mouse position in window coordinates
+		ImVec2 mousePos = ImGui::GetMousePos();
+		
+		// Convert to viewport coordinates
+		float mouseX = mousePos.x - m_ViewportBounds[0].x;
+		float mouseY = mousePos.y - m_ViewportBounds[0].y;
+		
+		// Check if mouse is within viewport bounds
+		if (mouseX < 0 || mouseY < 0 || mouseX >= m_ViewportSize.x || mouseY >= m_ViewportSize.y)
+			return;
+		
+		// For now, just cycle through entities with meshes on click
+		// A proper implementation would do ray casting against mesh bounds
+		if (m_Entities.empty())
+			return;
+		
+		// Find entities with meshes
+		std::vector<Entity*> selectableEntities;
+		for (auto& entity : m_Entities)
+		{
+			if (entity.Mesh != MeshType::None)
+				selectableEntities.push_back(&entity);
+		}
+		
+		if (selectableEntities.empty())
+			return;
+		
+		// Find currently selected entity index
+		int currentIndex = -1;
+		for (size_t i = 0; i < selectableEntities.size(); ++i)
+		{
+			if (selectableEntities[i] == m_SelectedEntity)
+			{
+				currentIndex = static_cast<int>(i);
+				break;
+			}
+		}
+		
+		// Select next entity (or first if none selected)
+		int nextIndex = (currentIndex + 1) % static_cast<int>(selectableEntities.size());
+		
+		ClearSelection();
+		selectableEntities[nextIndex]->IsSelected = true;
+		m_SelectedEntity = selectableEntities[nextIndex];
+		
+		HZ_INFO("Selected entity: " + m_SelectedEntity->Name);
 	}
 
 }
