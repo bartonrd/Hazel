@@ -147,6 +147,32 @@ namespace HazelEditor {
 	void EditorLayer::OnDetach()
 	{
 		HZ_INFO("EditorLayer::OnDetach");
+		
+		// CRITICAL: Release all OpenGL resources before the OpenGL context is destroyed
+		// This prevents access violations when destructors try to call OpenGL functions
+		// after the context has been destroyed by GLFW
+		
+		// Release mesh buffers (must be done before VertexArrays)
+		m_CubeIndexBuffer.reset();
+		m_CubeVertexBuffer.reset();
+		m_SphereIndexBuffer.reset();
+		m_SphereVertexBuffer.reset();
+		m_CapsuleIndexBuffer.reset();
+		m_CapsuleVertexBuffer.reset();
+		
+		// Release vertex arrays
+		m_CubeMesh.reset();
+		m_SphereMesh.reset();
+		m_CapsuleMesh.reset();
+		
+		// Release rendering resources
+		m_SceneLight.reset();
+		m_DefaultMaterial.reset();
+		m_SceneShader.reset();
+		m_SceneFramebuffer.reset();
+		m_EditorCamera.reset();
+		
+		HZ_INFO("EditorLayer::OnDetach - All OpenGL resources released");
 	}
 
 	void EditorLayer::OnUpdate(float deltaTime)
