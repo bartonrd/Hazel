@@ -33,6 +33,9 @@ namespace Hazel {
 		float GetYaw() const { return m_Yaw; }
 		float GetPitch() const { return m_Pitch; }
 
+		void SetYaw(float yaw) { m_Yaw = yaw; UpdateCameraVectors(); }
+		void SetPitch(float pitch) { m_Pitch = pitch; UpdateCameraVectors(); }
+
 	private:
 		void UpdateCameraVectors();
 

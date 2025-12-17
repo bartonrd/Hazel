@@ -4,6 +4,7 @@
 #include <imgui.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <cmath>
 
 namespace HazelEditor {
 
@@ -129,6 +130,9 @@ namespace HazelEditor {
 		CreateEntity("Cube", MeshType::Cube);
 		m_Entities.back().EntityTransform.Position = glm::vec3(0.0f, 0.0f, 0.0f);
 		m_Entities.back().Color = glm::vec4(0.8f, 0.3f, 0.3f, 1.0f);
+		
+		// Focus camera on the default cube so it's visible
+		FocusOnEntity(&m_Entities.back());
 	}
 
 	void EditorLayer::OnDetach()
@@ -670,6 +674,19 @@ namespace HazelEditor {
 		
 		// Set the camera position
 		m_EditorCamera->SetPosition(newCameraPos);
+		
+		// Calculate direction from camera to entity
+		glm::vec3 direction = glm::normalize(entityPos - newCameraPos);
+		
+		// Calculate yaw and pitch from direction vector
+		// yaw: rotation around Y axis (horizontal)
+		// pitch: rotation around X axis (vertical)
+		float yaw = glm::degrees(atan2(direction.z, direction.x));
+		float pitch = glm::degrees(asin(direction.y));
+		
+		// Set camera orientation to look at the entity
+		m_EditorCamera->SetYaw(yaw);
+		m_EditorCamera->SetPitch(pitch);
 		
 		HZ_INFO("Camera focused on entity: " + entity->Name);
 	}
