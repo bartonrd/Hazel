@@ -589,7 +589,8 @@ namespace HazelEditor {
 		}
 		
 		// Handle keyboard input for camera movement (WASD + QE)
-		if (m_ViewportFocused)
+		// Only allow movement when right mouse button is held down (flying camera mode)
+		if (m_ViewportHovered && ImGui::IsMouseDown(ImGuiMouseButton_Right))
 		{
 			m_EditorCamera->SetMoveForward(ImGui::IsKeyDown(ImGuiKey_W));
 			m_EditorCamera->SetMoveBackward(ImGui::IsKeyDown(ImGuiKey_S));
@@ -600,7 +601,7 @@ namespace HazelEditor {
 		}
 		else
 		{
-			// Stop all movement when not focused
+			// Stop all movement when right mouse button is not held
 			m_EditorCamera->SetMoveForward(false);
 			m_EditorCamera->SetMoveBackward(false);
 			m_EditorCamera->SetMoveLeft(false);
