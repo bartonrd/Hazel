@@ -724,6 +724,13 @@ namespace HazelEditor {
 
 	void EditorLayer::RenderScene()
 	{
+		static bool logOnce = true;
+		if (logOnce)
+		{
+			HZ_INFO("RenderScene() called for the first time");
+			logOnce = false;
+		}
+		
 		// Bind framebuffer and clear
 		m_SceneFramebuffer->Bind();
 		Hazel::Renderer::SetClearColor(glm::vec4(0.2f, 0.2f, 0.2f, 1.0f));
@@ -738,6 +745,7 @@ namespace HazelEditor {
 		
 		// Render all entities with meshes
 		int entitiesRendered = 0;
+		int totalEntities = static_cast<int>(m_Entities.size());
 		for (auto& entity : m_Entities)
 		{
 			if (entity.Mesh != MeshType::None)
@@ -762,9 +770,16 @@ namespace HazelEditor {
 			}
 		}
 		
-		if (entitiesRendered == 0)
+		static bool logRenderOnce = true;
+		if (logRenderOnce)
 		{
-			HZ_WARN("No entities were rendered in scene");
+			HZ_INFO("First render pass: " + std::to_string(entitiesRendered) + " entities rendered out of " + std::to_string(totalEntities) + " total");
+			logRenderOnce = false;
+		}
+		
+		if (entitiesRendered == 0 && totalEntities > 0)
+		{
+			HZ_WARN("No entities were rendered in scene (0/" + std::to_string(totalEntities) + ")");
 		}
 		
 		Hazel::Renderer::EndScene();
