@@ -670,6 +670,7 @@ namespace HazelEditor {
 		{
 			ImGui::SetMouseCursor(ImGuiMouseCursor_None);
 			
+			ImGuiIO& io = ImGui::GetIO();
 			ImVec2 mousePos = ImGui::GetMousePos();
 			
 			if (!m_CameraRotating)
@@ -685,10 +686,7 @@ namespace HazelEditor {
 			// Apply camera rotation
 			m_EditorCamera->ProcessMouseMovement(delta.x, -delta.y);
 			
-			// Keep cursor locked within viewport by resetting to last position if it tries to exit
-			// This prevents the OS cursor from leaving the viewport bounds
-			ImGuiIO& io = ImGui::GetIO();
-			
+			// Lock cursor within viewport by setting position and requesting backend to move OS cursor
 			// Check if cursor would exit viewport bounds
 			bool wouldExitLeft = mousePos.x < m_ViewportBounds[0].x;
 			bool wouldExitRight = mousePos.x > m_ViewportBounds[1].x;
@@ -700,7 +698,10 @@ namespace HazelEditor {
 				// Cursor is trying to exit - clamp it to viewport bounds
 				float clampedX = glm::clamp(mousePos.x, m_ViewportBounds[0].x + 1.0f, m_ViewportBounds[1].x - 1.0f);
 				float clampedY = glm::clamp(mousePos.y, m_ViewportBounds[0].y + 1.0f, m_ViewportBounds[1].y - 1.0f);
-				io.AddMousePosEvent(clampedX, clampedY);
+				
+				// Set ImGui's mouse position and request backend to move OS cursor
+				io.MousePos = ImVec2(clampedX, clampedY);
+				io.WantSetMousePos = true;
 				m_LastMousePos = glm::vec2(clampedX, clampedY);
 			}
 			else
