@@ -664,9 +664,9 @@ namespace HazelEditor {
 		
 		// Calculate the size of the object based on its scale
 		// Use the maximum scale component to determine distance
-		float maxScale = glm::max(glm::max(entity->EntityTransform.Scale.x, 
-		                                    entity->EntityTransform.Scale.y), 
-		                          entity->EntityTransform.Scale.z);
+		float maxScale = std::max(entity->EntityTransform.Scale.x, 
+		                          std::max(entity->EntityTransform.Scale.y, 
+		                                   entity->EntityTransform.Scale.z));
 		
 		// Calculate camera distance based on object size
 		// Distance should be enough to frame the object nicely
