@@ -1,5 +1,6 @@
 #include "EditorLayer.h"
 #include "Hazel/ImGui/ImGuiLayer.h"
+#include "Hazel/Application.h"
 #include "Hazel/Renderer/MeshGenerator.h"
 #include "Hazel/Renderer/OpenGLLoader.h"
 #include <imgui.h>
@@ -697,22 +698,68 @@ namespace HazelEditor {
 		{
 			ImGui::SetMouseCursor(ImGuiMouseCursor_None);
 			
-			ImVec2 mousePos = ImGui::GetMousePos();
+			// Enable cursor disabled mode to hide cursor
 			if (!m_CameraRotating)
 			{
-				m_LastMousePos = glm::vec2(mousePos.x, mousePos.y);
+				Hazel::Application::Get().SetCursorMode(Hazel::CursorMode::Disabled);
 				m_CameraRotating = true;
 			}
 			
+			ImVec2 mousePos = ImGui::GetMousePos();
+			
+			// Initialize last mouse position on first frame
+			if (m_LastMousePos.x == 0.0f && m_LastMousePos.y == 0.0f)
+			{
+				m_LastMousePos = glm::vec2(mousePos.x, mousePos.y);
+			}
+			
+			// Calculate delta from current position
 			glm::vec2 currentPos(mousePos.x, mousePos.y);
 			glm::vec2 delta = currentPos - m_LastMousePos;
-			m_LastMousePos = currentPos;
 			
+			// Clamp delta to prevent extreme jumps when cursor repositions
+			const float maxDelta = 100.0f;
+			delta.x = glm::clamp(delta.x, -maxDelta, maxDelta);
+			delta.y = glm::clamp(delta.y, -maxDelta, maxDelta);
+			
+			// Apply camera rotation
 			m_EditorCamera->ProcessMouseMovement(delta.x, -delta.y);
+			
+			// Use a buffer zone to start repositioning before cursor reaches actual edge
+			// This makes it much harder for fast mouse movement to escape
+			const float edgeBuffer = 50.0f; // Start repositioning 50px from edge
+			bool nearEdge = (mousePos.x < m_ViewportBounds[0].x + edgeBuffer || 
+			                 mousePos.x > m_ViewportBounds[1].x - edgeBuffer ||
+			                 mousePos.y < m_ViewportBounds[0].y + edgeBuffer || 
+			                 mousePos.y > m_ViewportBounds[1].y - edgeBuffer);
+			
+			bool outsideBounds = (mousePos.x < m_ViewportBounds[0].x || mousePos.x > m_ViewportBounds[1].x ||
+			                      mousePos.y < m_ViewportBounds[0].y || mousePos.y > m_ViewportBounds[1].y);
+			
+			// Reposition to center if near edge or outside bounds
+			if (nearEdge || outsideBounds)
+			{
+				// Reset cursor to center of viewport to keep it contained
+				glm::vec2 viewportCenter = (m_ViewportBounds[0] + m_ViewportBounds[1]) * 0.5f;
+				
+				// Reposition cursor without changing mode (stays in Disabled mode)
+				Hazel::Application::Get().SetCursorPosition(viewportCenter.x, viewportCenter.y);
+				m_LastMousePos = viewportCenter;
+			}
+			else
+			{
+				m_LastMousePos = currentPos;
+			}
 		}
 		else
 		{
-			m_CameraRotating = false;
+			// Restore normal cursor mode when not rotating
+			if (m_CameraRotating)
+			{
+				Hazel::Application::Get().SetCursorMode(Hazel::CursorMode::Normal);
+				m_CameraRotating = false;
+				m_LastMousePos = glm::vec2(0.0f, 0.0f); // Reset for next time
+			}
 		}
 		
 		// Handle keyboard input for camera movement (WASD + QE)

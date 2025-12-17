@@ -8,6 +8,14 @@ struct GLFWwindow;
 
 namespace Hazel
 {
+	enum class CursorMode
+	{
+		Normal = 0,
+		Hidden = 1,
+		Disabled = 2,
+		Captured = 3
+	};
+
 	class HAZEL_API Application
 	{
 	public:
@@ -21,6 +29,12 @@ namespace Hazel
 
 		static Application& Get() { return *s_Instance; }
 		GLFWwindow* GetWindow() const { return m_Window; }
+		
+		// Helper function to set cursor position (wraps GLFW call)
+		void SetCursorPosition(double x, double y);
+		
+		// Helper function to control cursor mode
+		void SetCursorMode(CursorMode mode);
 
 	private:
 		LayerStack m_LayerStack;
