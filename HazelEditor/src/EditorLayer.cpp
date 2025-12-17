@@ -679,27 +679,14 @@ namespace HazelEditor {
 			
 			ImVec2 mousePos = ImGui::GetMousePos();
 			
-			if (!m_CameraRotating)
-			{
-				m_LastMousePos = glm::vec2(mousePos.x, mousePos.y);
-				m_CameraRotating = true;
-			}
-			
-			// Calculate delta from current position
-			glm::vec2 currentPos(mousePos.x, mousePos.y);
-			glm::vec2 delta = currentPos - m_LastMousePos;
-			
-			// Apply camera rotation
-			m_EditorCamera->ProcessMouseMovement(delta.x, -delta.y);
-			
-			// Even with GLFW_CURSOR_DISABLED, we need to constrain cursor to viewport bounds
-			// This prevents the invisible cursor from moving to other parts of the window
+			// Constrain cursor to viewport bounds BEFORE calculating delta
+			// This prevents fast mouse movement from escaping the viewport
 			bool outsideBounds = (mousePos.x < m_ViewportBounds[0].x || mousePos.x > m_ViewportBounds[1].x ||
 			                      mousePos.y < m_ViewportBounds[0].y || mousePos.y > m_ViewportBounds[1].y);
 			
 			if (outsideBounds)
 			{
-				// Clamp cursor position to viewport bounds and reset it
+				// Clamp cursor position to viewport bounds
 				float clampedX = glm::clamp(mousePos.x, m_ViewportBounds[0].x + 1.0f, m_ViewportBounds[1].x - 1.0f);
 				float clampedY = glm::clamp(mousePos.y, m_ViewportBounds[0].y + 1.0f, m_ViewportBounds[1].y - 1.0f);
 				
@@ -708,12 +695,24 @@ namespace HazelEditor {
 				Hazel::Application::Get().SetCursorPosition(clampedX, clampedY);
 				Hazel::Application::Get().SetCursorMode(Hazel::CursorMode::Disabled);
 				
-				m_LastMousePos = glm::vec2(clampedX, clampedY);
+				// Use clamped position for all calculations
+				mousePos.x = clampedX;
+				mousePos.y = clampedY;
 			}
-			else
+			
+			if (!m_CameraRotating)
 			{
-				m_LastMousePos = currentPos;
+				m_LastMousePos = glm::vec2(mousePos.x, mousePos.y);
+				m_CameraRotating = true;
 			}
+			
+			// Calculate delta from current position (which is now guaranteed to be within bounds)
+			glm::vec2 currentPos(mousePos.x, mousePos.y);
+			glm::vec2 delta = currentPos - m_LastMousePos;
+			m_LastMousePos = currentPos;
+			
+			// Apply camera rotation
+			m_EditorCamera->ProcessMouseMovement(delta.x, -delta.y);
 		}
 		else
 		{
