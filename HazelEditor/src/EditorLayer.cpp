@@ -693,24 +693,13 @@ namespace HazelEditor {
 		// Don't allow camera movement when gizmo is being manipulated
 		if (m_ViewportHovered && ImGui::IsMouseDown(ImGuiMouseButton_Right) && !ImGuizmo::IsUsing())
 		{
-			// Gizmo mode shortcuts (Q, W, E, R)
-			if (ImGui::IsKeyPressed(ImGuiKey_Q))
-				m_GizmoOperation = GizmoOperation::Translate; // Q for move (like Unity)
-			if (ImGui::IsKeyPressed(ImGuiKey_W) && !ImGui::IsKeyDown(ImGuiKey_LeftShift))
-				m_GizmoOperation = GizmoOperation::Translate; // W for translate
-			if (ImGui::IsKeyPressed(ImGuiKey_E) && !ImGui::IsKeyDown(ImGuiKey_LeftShift))
-				m_GizmoOperation = GizmoOperation::Rotate;    // E for rotate
-			if (ImGui::IsKeyPressed(ImGuiKey_R))
-				m_GizmoOperation = GizmoOperation::Scale;      // R for scale
-			
-			// Camera movement (WASD + QE when shift is held, or when gizmo is translate mode)
-			bool moveCameraWithWASD = ImGui::IsKeyDown(ImGuiKey_LeftShift) || m_GizmoOperation != GizmoOperation::Translate;
-			m_EditorCamera->SetMoveForward(moveCameraWithWASD && ImGui::IsKeyDown(ImGuiKey_W));
-			m_EditorCamera->SetMoveBackward(moveCameraWithWASD && ImGui::IsKeyDown(ImGuiKey_S));
-			m_EditorCamera->SetMoveLeft(moveCameraWithWASD && ImGui::IsKeyDown(ImGuiKey_A));
-			m_EditorCamera->SetMoveRight(moveCameraWithWASD && ImGui::IsKeyDown(ImGuiKey_D));
-			m_EditorCamera->SetMoveUp(moveCameraWithWASD && ImGui::IsKeyDown(ImGuiKey_E));
-			m_EditorCamera->SetMoveDown(moveCameraWithWASD && ImGui::IsKeyDown(ImGuiKey_Q));
+			// When right-click is held, WASD always moves the camera (FPS fly mode)
+			m_EditorCamera->SetMoveForward(ImGui::IsKeyDown(ImGuiKey_W));
+			m_EditorCamera->SetMoveBackward(ImGui::IsKeyDown(ImGuiKey_S));
+			m_EditorCamera->SetMoveLeft(ImGui::IsKeyDown(ImGuiKey_A));
+			m_EditorCamera->SetMoveRight(ImGui::IsKeyDown(ImGuiKey_D));
+			m_EditorCamera->SetMoveUp(ImGui::IsKeyDown(ImGuiKey_E));
+			m_EditorCamera->SetMoveDown(ImGui::IsKeyDown(ImGuiKey_Q));
 		}
 		else
 		{
@@ -721,6 +710,19 @@ namespace HazelEditor {
 			m_EditorCamera->SetMoveRight(false);
 			m_EditorCamera->SetMoveUp(false);
 			m_EditorCamera->SetMoveDown(false);
+			
+			// Gizmo mode shortcuts (Q, W, E, R) - only active when NOT in camera fly mode
+			if (m_ViewportHovered)
+			{
+				if (ImGui::IsKeyPressed(ImGuiKey_Q))
+					m_GizmoOperation = GizmoOperation::Translate;
+				if (ImGui::IsKeyPressed(ImGuiKey_W))
+					m_GizmoOperation = GizmoOperation::Translate;
+				if (ImGui::IsKeyPressed(ImGuiKey_E))
+					m_GizmoOperation = GizmoOperation::Rotate;
+				if (ImGui::IsKeyPressed(ImGuiKey_R))
+					m_GizmoOperation = GizmoOperation::Scale;
+			}
 		}
 		
 		ImGui::End();
