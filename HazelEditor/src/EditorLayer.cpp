@@ -146,7 +146,8 @@ namespace HazelEditor {
 	void EditorLayer::OnUpdate(float deltaTime)
 	{
 		// Update editor camera
-		if (m_ViewportFocused)
+		// Update when viewport is hovered (allows flying camera mode when right-clicking)
+		if (m_ViewportHovered)
 		{
 			m_EditorCamera->OnUpdate(deltaTime);
 		}
