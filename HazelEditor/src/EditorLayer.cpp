@@ -671,26 +671,38 @@ namespace HazelEditor {
 			ImGui::SetMouseCursor(ImGuiMouseCursor_None);
 			
 			ImVec2 mousePos = ImGui::GetMousePos();
+			
+			// Clamp mouse position to viewport bounds to prevent cursor from exiting
+			float clampedX = glm::clamp(mousePos.x, m_ViewportBounds[0].x, m_ViewportBounds[1].x);
+			float clampedY = glm::clamp(mousePos.y, m_ViewportBounds[0].y, m_ViewportBounds[1].y);
+			
 			if (!m_CameraRotating)
 			{
-				// First frame of right-click: store initial position
-				m_InitialMousePos = glm::vec2(mousePos.x, mousePos.y);
-				m_LastMousePos = m_InitialMousePos;
+				m_LastMousePos = glm::vec2(clampedX, clampedY);
 				m_CameraRotating = true;
 			}
 			
-			// Calculate delta from current position
-			glm::vec2 currentPos(mousePos.x, mousePos.y);
+			glm::vec2 currentPos(clampedX, clampedY);
 			glm::vec2 delta = currentPos - m_LastMousePos;
+			m_LastMousePos = currentPos;
 			
-			// Apply camera rotation based on delta
 			m_EditorCamera->ProcessMouseMovement(delta.x, -delta.y);
 			
-			// Reset cursor to initial position to keep it locked
-			// Use ImGui's IO to set mouse position (avoid calling GLFW directly from HazelEditor)
-			ImGuiIO& io = ImGui::GetIO();
-			io.AddMousePosEvent(m_InitialMousePos.x, m_InitialMousePos.y);
-			m_LastMousePos = m_InitialMousePos;
+			// If mouse is at viewport edge, reset it to center to enable continuous rotation
+			const float edgeThreshold = 5.0f;
+			bool atEdge = (mousePos.x <= m_ViewportBounds[0].x + edgeThreshold || 
+			               mousePos.x >= m_ViewportBounds[1].x - edgeThreshold ||
+			               mousePos.y <= m_ViewportBounds[0].y + edgeThreshold || 
+			               mousePos.y >= m_ViewportBounds[1].y - edgeThreshold);
+			
+			if (atEdge)
+			{
+				// Reset to center of viewport for continuous rotation
+				glm::vec2 viewportCenter = (m_ViewportBounds[0] + m_ViewportBounds[1]) * 0.5f;
+				ImGuiIO& io = ImGui::GetIO();
+				io.AddMousePosEvent(viewportCenter.x, viewportCenter.y);
+				m_LastMousePos = viewportCenter;
+			}
 		}
 		else
 		{
