@@ -141,6 +141,7 @@ namespace HazelEditor {
 		
 		// Camera control
 		bool m_CameraRotating = false;
+		glm::vec2 m_InitialMousePos = { 0.0f, 0.0f };  // Store initial mouse pos when right-click starts
 		int m_NextEntityID = 100;
 		
 		// Gizmo state

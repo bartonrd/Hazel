@@ -673,15 +673,22 @@ namespace HazelEditor {
 			ImVec2 mousePos = ImGui::GetMousePos();
 			if (!m_CameraRotating)
 			{
-				m_LastMousePos = glm::vec2(mousePos.x, mousePos.y);
+				// First frame of right-click: store initial position
+				m_InitialMousePos = glm::vec2(mousePos.x, mousePos.y);
+				m_LastMousePos = m_InitialMousePos;
 				m_CameraRotating = true;
 			}
 			
+			// Calculate delta from current position
 			glm::vec2 currentPos(mousePos.x, mousePos.y);
 			glm::vec2 delta = currentPos - m_LastMousePos;
-			m_LastMousePos = currentPos;
 			
+			// Apply camera rotation based on delta
 			m_EditorCamera->ProcessMouseMovement(delta.x, -delta.y);
+			
+			// Reset cursor to initial position to keep it locked
+			ImGui::SetMousePos(ImVec2(m_InitialMousePos.x, m_InitialMousePos.y));
+			m_LastMousePos = m_InitialMousePos;
 		}
 		else
 		{
