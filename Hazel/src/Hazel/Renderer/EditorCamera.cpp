@@ -79,9 +79,8 @@ namespace Hazel {
 		m_Right = glm::normalize(glm::cross(m_Front, m_WorldUp));
 		m_Up = glm::normalize(glm::cross(m_Right, m_Front));
 
-		// Update the rotation in the base camera
-		// Convert yaw and pitch to a rotation vector
-		SetRotation(glm::vec3(m_Pitch, m_Yaw, 0.0f));
+		// Recalculate the view matrix with updated vectors
+		RecalculateViewMatrix();
 	}
 
 	void EditorCamera::RecalculateViewMatrix()
