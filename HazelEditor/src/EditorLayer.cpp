@@ -698,17 +698,24 @@ namespace HazelEditor {
 			// Apply camera rotation
 			m_EditorCamera->ProcessMouseMovement(delta.x, -delta.y);
 			
-			// Check if cursor is outside viewport bounds
+			// Use a buffer zone to start repositioning before cursor reaches actual edge
+			// This makes it much harder for fast mouse movement to escape
+			const float edgeBuffer = 50.0f; // Start repositioning 50px from edge
+			bool nearEdge = (mousePos.x < m_ViewportBounds[0].x + edgeBuffer || 
+			                 mousePos.x > m_ViewportBounds[1].x - edgeBuffer ||
+			                 mousePos.y < m_ViewportBounds[0].y + edgeBuffer || 
+			                 mousePos.y > m_ViewportBounds[1].y - edgeBuffer);
+			
 			bool outsideBounds = (mousePos.x < m_ViewportBounds[0].x || mousePos.x > m_ViewportBounds[1].x ||
 			                      mousePos.y < m_ViewportBounds[0].y || mousePos.y > m_ViewportBounds[1].y);
 			
-			if (outsideBounds)
+			// Reposition to center if near edge or outside bounds
+			if (nearEdge || outsideBounds)
 			{
 				// Reset cursor to center of viewport to keep it contained
 				glm::vec2 viewportCenter = (m_ViewportBounds[0] + m_ViewportBounds[1]) * 0.5f;
 				
 				// Reposition cursor without changing mode (stays in Disabled mode)
-				// Note: glfwSetCursorPos works even in DISABLED mode for raw input
 				Hazel::Application::Get().SetCursorPosition(viewportCenter.x, viewportCenter.y);
 				m_LastMousePos = viewportCenter;
 			}
