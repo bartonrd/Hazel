@@ -29,18 +29,20 @@ Build and run the **HazelEditor** project. You'll see the editor interface with 
 - **Right-Click + Drag**: Rotate the camera (look around)
 - **Mouse Scroll**: Zoom in/out
 
-**Keyboard Controls:**
-- **W**: Move forward
-- **S**: Move backward  
-- **A**: Move left
-- **D**: Move right
-- **E**: Move up
-- **Q**: Move down
+**Keyboard Controls (Flying Camera Mode):**
+- **Right-Click + W**: Move forward
+- **Right-Click + S**: Move backward  
+- **Right-Click + A**: Move left
+- **Right-Click + D**: Move right
+- **Right-Click + E**: Move up
+- **Right-Click + Q**: Move down
 
 **Tips:**
 - The cursor hides while rotating (right-click held)
-- Camera only moves when Scene window is focused
+- **Hold right mouse button** to activate flying camera mode
+- WASD/QE keys only work while right-click is held down
 - All keys can be held simultaneously for diagonal movement
+- Release right-click to stop camera movement and rotation
 
 ### 3. Create Your First Object
 
@@ -101,9 +103,10 @@ Let's create a simple scene with multiple objects:
    - Set Position: X=2, Y=0.5
 
 4. **Navigate Around:**
-   - Use WASD to fly around your scene
-   - Right-click drag to look at objects from different angles
+   - **Hold right mouse button** and use WASD to fly around your scene
+   - Right-click and drag to look at objects from different angles
    - Scroll to zoom in/out
+   - Release right-click when done navigating
 
 ## Common Workflows
 
@@ -155,12 +158,13 @@ The editor can handle hundreds of objects, but start small:
 | Action | Shortcut |
 |--------|----------|
 | Create Empty Object | Ctrl+Shift+N (menu) |
-| Move Forward | W |
-| Move Backward | S |
-| Move Left | A |
-| Move Right | D |
-| Move Up | E |
-| Move Down | Q |
+| Flying Camera Mode | Hold Right Mouse Button |
+| Move Forward (in flying mode) | Right-Click + W |
+| Move Backward (in flying mode) | Right-Click + S |
+| Move Left (in flying mode) | Right-Click + A |
+| Move Right (in flying mode) | Right-Click + D |
+| Move Up (in flying mode) | Right-Click + E |
+| Move Down (in flying mode) | Right-Click + Q |
 | Rotate Camera | Right Mouse Button + Drag |
 | Zoom | Mouse Scroll Wheel |
 
@@ -183,15 +187,20 @@ The editor can handle hundreds of objects, but start small:
 
 ### "Camera won't move"
 
-**Solution 1: Focus**
-- Click inside the Scene view window
-- Window must be focused for input to work
-- You'll see a highlight around focused window
+**Solution 1: Right-Click**
+- **Hold down right mouse button** while pressing WASD
+- Flying camera mode only activates when right-click is held
+- Release right-click to stop movement
 
-**Solution 2: Keys Not Working**
-- Make sure Scene view has focus (click it)
-- Try pressing keys harder/longer
-- Check if another window is capturing input
+**Solution 2: Hover**
+- Make sure mouse is hovering over the Scene view window
+- Right-click must be done inside the Scene view
+- Camera won't move if right-clicking outside the window
+
+**Solution 3: Keys Not Working**
+- Ensure you're holding right mouse button down
+- Try pressing and holding right-click first, then press W
+- Both right-click AND the movement key must be held together
 
 ### "Objects appear but are black/dark"
 
@@ -287,9 +296,11 @@ If you encounter issues:
 
 You now have a fully functional 3D Scene editor! Key points to remember:
 
-✅ **Focus the Scene view** before using camera controls
-✅ **Right-click drag** to rotate camera
-✅ **WASD+QE** to fly around
+✅ **Hover over Scene view** for camera controls to work
+✅ **Hold right-click** to activate flying camera mode
+✅ **Right-click drag** to rotate camera view
+✅ **Right-click + WASD/QE** to fly around the scene
+✅ **Release right-click** to stop flying
 ✅ **Create objects** via GameObject menu
 ✅ **Select in Hierarchy** to edit in Inspector
 ✅ **Changes are instant** - no save needed
