@@ -52,6 +52,9 @@ namespace Hazel
 
 		HZ_INFO("GLFW Window created successfully");
 
+		// Initialize renderer (must be done after OpenGL context is created)
+		Renderer::Init();
+
 		// Initialize scripting engine
 		ScriptEngine::Init();
 	}
