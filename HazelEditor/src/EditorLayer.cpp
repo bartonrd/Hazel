@@ -665,7 +665,8 @@ namespace HazelEditor {
 		}
 		
 		// Handle mouse input for camera rotation
-		if (m_ViewportHovered && ImGui::IsMouseDown(ImGuiMouseButton_Right))
+		// Don't allow camera rotation when gizmo is being manipulated
+		if (m_ViewportHovered && ImGui::IsMouseDown(ImGuiMouseButton_Right) && !ImGuizmo::IsUsing())
 		{
 			ImGui::SetMouseCursor(ImGuiMouseCursor_None);
 			
@@ -689,7 +690,8 @@ namespace HazelEditor {
 		
 		// Handle keyboard input for camera movement (WASD + QE)
 		// Only allow movement when right mouse button is held down (flying camera mode)
-		if (m_ViewportHovered && ImGui::IsMouseDown(ImGuiMouseButton_Right))
+		// Don't allow camera movement when gizmo is being manipulated
+		if (m_ViewportHovered && ImGui::IsMouseDown(ImGuiMouseButton_Right) && !ImGuizmo::IsUsing())
 		{
 			// Gizmo mode shortcuts (Q, W, E, R)
 			if (ImGui::IsKeyPressed(ImGuiKey_Q))
