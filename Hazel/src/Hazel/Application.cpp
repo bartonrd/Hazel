@@ -156,4 +156,12 @@ namespace Hazel
 	{
 		m_LayerStack.PushOverlay(overlay);
 	}
+	
+	void Application::SetCursorPosition(double x, double y)
+	{
+		if (m_Window)
+		{
+			glfwSetCursorPos(m_Window, x, y);
+		}
+	}
 }

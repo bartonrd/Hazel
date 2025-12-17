@@ -21,6 +21,9 @@ namespace Hazel
 
 		static Application& Get() { return *s_Instance; }
 		GLFWwindow* GetWindow() const { return m_Window; }
+		
+		// Helper function to set cursor position (wraps GLFW call)
+		void SetCursorPosition(double x, double y);
 
 	private:
 		LayerStack m_LayerStack;
