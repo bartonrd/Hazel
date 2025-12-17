@@ -414,6 +414,12 @@ namespace HazelEditor {
 			m_SelectedEntity = entity;
 		}
 
+		// Focus camera on entity when double-clicked
+		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+		{
+			FocusOnEntity(entity);
+		}
+
 		if (opened)
 		{
 			for (auto* child : entity->Children)
@@ -637,6 +643,35 @@ namespace HazelEditor {
 			entity.IsSelected = false;
 		}
 		m_SelectedEntity = nullptr;
+	}
+
+	void EditorLayer::FocusOnEntity(Entity* entity)
+	{
+		if (!entity || !m_EditorCamera)
+			return;
+
+		// Get the entity's position from its transform
+		glm::vec3 entityPos = entity->EntityTransform.Position;
+		
+		// Calculate the size of the object based on its scale
+		// Use the maximum scale component to determine distance
+		float maxScale = glm::max(glm::max(entity->EntityTransform.Scale.x, 
+		                                    entity->EntityTransform.Scale.y), 
+		                          entity->EntityTransform.Scale.z);
+		
+		// Calculate camera distance based on object size
+		// Distance should be enough to frame the object nicely
+		float distance = maxScale * 3.0f;
+		if (distance < 5.0f) distance = 5.0f; // Minimum distance
+		
+		// Position camera behind and slightly above the object
+		glm::vec3 offset(0.0f, distance * 0.3f, distance);
+		glm::vec3 newCameraPos = entityPos + offset;
+		
+		// Set the camera position
+		m_EditorCamera->SetPosition(newCameraPos);
+		
+		HZ_INFO("Camera focused on entity: " + entity->Name);
 	}
 
 	void EditorLayer::CreateEntity(const std::string& name, MeshType meshType)

@@ -77,6 +77,7 @@ namespace HazelEditor {
 		void ClearSelection();
 		void CreateEntity(const std::string& name, MeshType meshType);
 		void RenderScene();
+		void FocusOnEntity(Entity* entity);
 		
 		// Mesh management
 		void InitializeMeshBuffers();
