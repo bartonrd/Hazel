@@ -729,7 +729,6 @@ namespace HazelEditor {
 		if (logOnce)
 		{
 			HZ_INFO("RenderScene() called for the first time");
-			logOnce = false;
 		}
 		
 		// Bind framebuffer and clear
@@ -779,8 +778,7 @@ namespace HazelEditor {
 			}
 		}
 		
-		static bool logRenderOnce = true;
-		if (logRenderOnce)
+		if (logOnce)
 		{
 			HZ_INFO("First render pass: " + std::to_string(entitiesRendered) + " entities rendered out of " + std::to_string(totalEntities) + " total");
 			
@@ -798,7 +796,7 @@ namespace HazelEditor {
 			// Log framebuffer texture ID
 			HZ_INFO("Framebuffer color attachment ID: " + std::to_string(m_SceneFramebuffer->GetColorAttachment()));
 			
-			logRenderOnce = false;
+			logOnce = false;
 		}
 		
 		if (entitiesRendered == 0 && totalEntities > 0)

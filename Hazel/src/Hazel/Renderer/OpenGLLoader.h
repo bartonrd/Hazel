@@ -10,6 +10,10 @@ extern "C" {
 #endif
 
 // Additional OpenGL constants not in ImGui's minimal loader
+#ifndef GL_NO_ERROR
+#define GL_NO_ERROR                       0
+#endif
+
 #ifndef GL_LESS
 #define GL_LESS                           0x0201
 #endif
