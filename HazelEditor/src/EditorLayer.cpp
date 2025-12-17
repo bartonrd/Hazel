@@ -671,6 +671,12 @@ namespace HazelEditor {
 		{
 			ImGui::SetMouseCursor(ImGuiMouseCursor_None);
 			
+			// Enable cursor capturing to confine cursor to window and hide it
+			if (!m_CameraRotating)
+			{
+				Hazel::Application::Get().SetCursorMode(Hazel::CursorMode::Disabled);
+			}
+			
 			ImVec2 mousePos = ImGui::GetMousePos();
 			
 			if (!m_CameraRotating)
@@ -682,35 +688,19 @@ namespace HazelEditor {
 			// Calculate delta from current position
 			glm::vec2 currentPos(mousePos.x, mousePos.y);
 			glm::vec2 delta = currentPos - m_LastMousePos;
+			m_LastMousePos = currentPos;
 			
 			// Apply camera rotation
 			m_EditorCamera->ProcessMouseMovement(delta.x, -delta.y);
-			
-			// Lock cursor within viewport by clamping and calling GLFW through Application
-			bool wouldExitLeft = mousePos.x < m_ViewportBounds[0].x;
-			bool wouldExitRight = mousePos.x > m_ViewportBounds[1].x;
-			bool wouldExitTop = mousePos.y < m_ViewportBounds[0].y;
-			bool wouldExitBottom = mousePos.y > m_ViewportBounds[1].y;
-			
-			if (wouldExitLeft || wouldExitRight || wouldExitTop || wouldExitBottom)
-			{
-				// Cursor is trying to exit - clamp it to viewport bounds
-				float clampedX = glm::clamp(mousePos.x, m_ViewportBounds[0].x + 1.0f, m_ViewportBounds[1].x - 1.0f);
-				float clampedY = glm::clamp(mousePos.y, m_ViewportBounds[0].y + 1.0f, m_ViewportBounds[1].y - 1.0f);
-				
-				// Use Application helper to actually move OS cursor
-				Hazel::Application::Get().SetCursorPosition(clampedX, clampedY);
-				m_LastMousePos = glm::vec2(clampedX, clampedY);
-			}
-			else
-			{
-				// Normal update - track current position
-				m_LastMousePos = currentPos;
-			}
 		}
 		else
 		{
-			m_CameraRotating = false;
+			// Restore normal cursor mode when not rotating
+			if (m_CameraRotating)
+			{
+				Hazel::Application::Get().SetCursorMode(Hazel::CursorMode::Normal);
+				m_CameraRotating = false;
+			}
 		}
 		
 		// Handle keyboard input for camera movement (WASD + QE)

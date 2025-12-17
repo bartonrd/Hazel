@@ -164,4 +164,21 @@ namespace Hazel
 			glfwSetCursorPos(m_Window, x, y);
 		}
 	}
+	
+	void Application::SetCursorMode(CursorMode mode)
+	{
+		if (m_Window)
+		{
+			int glfwMode;
+			switch (mode)
+			{
+				case CursorMode::Normal:    glfwMode = GLFW_CURSOR_NORMAL; break;
+				case CursorMode::Hidden:    glfwMode = GLFW_CURSOR_HIDDEN; break;
+				case CursorMode::Disabled:  glfwMode = GLFW_CURSOR_DISABLED; break;
+				case CursorMode::Captured:  glfwMode = GLFW_CURSOR_CAPTURED; break;
+				default:                     glfwMode = GLFW_CURSOR_NORMAL; break;
+			}
+			glfwSetInputMode(m_Window, GLFW_CURSOR, glfwMode);
+		}
+	}
 }
