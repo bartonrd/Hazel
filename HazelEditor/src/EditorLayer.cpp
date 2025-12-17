@@ -1,6 +1,7 @@
 #include "EditorLayer.h"
 #include "Hazel/ImGui/ImGuiLayer.h"
 #include "Hazel/Renderer/MeshGenerator.h"
+#include "Hazel/Renderer/OpenGLLoader.h"
 #include <imgui.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
