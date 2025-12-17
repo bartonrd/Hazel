@@ -16,6 +16,14 @@
 
 namespace HazelEditor {
 
+	// Gizmo operation mode
+	enum class GizmoOperation
+	{
+		Translate,
+		Rotate,
+		Scale
+	};
+
 	// Mesh type enumeration
 	enum class MeshType
 	{
@@ -78,6 +86,7 @@ namespace HazelEditor {
 		void CreateEntity(const std::string& name, MeshType meshType);
 		void RenderScene();
 		void FocusOnEntity(Entity* entity);
+		void HandleSceneViewMousePicking();
 		
 		// Mesh management
 		void InitializeMeshBuffers();
@@ -133,6 +142,10 @@ namespace HazelEditor {
 		// Camera control
 		bool m_CameraRotating = false;
 		int m_NextEntityID = 100;
+		
+		// Gizmo state
+		GizmoOperation m_GizmoOperation = GizmoOperation::Translate;
+		bool m_GizmoEnabled = true;
 	};
 
 }
