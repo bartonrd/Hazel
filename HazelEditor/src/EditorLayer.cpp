@@ -672,36 +672,41 @@ namespace HazelEditor {
 			
 			ImVec2 mousePos = ImGui::GetMousePos();
 			
-			// Clamp mouse position to viewport bounds to prevent cursor from exiting
-			float clampedX = glm::clamp(mousePos.x, m_ViewportBounds[0].x, m_ViewportBounds[1].x);
-			float clampedY = glm::clamp(mousePos.y, m_ViewportBounds[0].y, m_ViewportBounds[1].y);
-			
 			if (!m_CameraRotating)
 			{
-				m_LastMousePos = glm::vec2(clampedX, clampedY);
+				m_LastMousePos = glm::vec2(mousePos.x, mousePos.y);
 				m_CameraRotating = true;
 			}
 			
-			glm::vec2 currentPos(clampedX, clampedY);
+			// Calculate delta from current position
+			glm::vec2 currentPos(mousePos.x, mousePos.y);
 			glm::vec2 delta = currentPos - m_LastMousePos;
-			m_LastMousePos = currentPos;
 			
+			// Apply camera rotation
 			m_EditorCamera->ProcessMouseMovement(delta.x, -delta.y);
 			
-			// If mouse is at viewport edge, reset it to center to enable continuous rotation
-			const float edgeThreshold = 5.0f;
-			bool atEdge = (mousePos.x <= m_ViewportBounds[0].x + edgeThreshold || 
-			               mousePos.x >= m_ViewportBounds[1].x - edgeThreshold ||
-			               mousePos.y <= m_ViewportBounds[0].y + edgeThreshold || 
-			               mousePos.y >= m_ViewportBounds[1].y - edgeThreshold);
+			// Keep cursor locked within viewport by resetting to last position if it tries to exit
+			// This prevents the OS cursor from leaving the viewport bounds
+			ImGuiIO& io = ImGui::GetIO();
 			
-			if (atEdge)
+			// Check if cursor would exit viewport bounds
+			bool wouldExitLeft = mousePos.x < m_ViewportBounds[0].x;
+			bool wouldExitRight = mousePos.x > m_ViewportBounds[1].x;
+			bool wouldExitTop = mousePos.y < m_ViewportBounds[0].y;
+			bool wouldExitBottom = mousePos.y > m_ViewportBounds[1].y;
+			
+			if (wouldExitLeft || wouldExitRight || wouldExitTop || wouldExitBottom)
 			{
-				// Reset to center of viewport for continuous rotation
-				glm::vec2 viewportCenter = (m_ViewportBounds[0] + m_ViewportBounds[1]) * 0.5f;
-				ImGuiIO& io = ImGui::GetIO();
-				io.AddMousePosEvent(viewportCenter.x, viewportCenter.y);
-				m_LastMousePos = viewportCenter;
+				// Cursor is trying to exit - clamp it to viewport bounds
+				float clampedX = glm::clamp(mousePos.x, m_ViewportBounds[0].x + 1.0f, m_ViewportBounds[1].x - 1.0f);
+				float clampedY = glm::clamp(mousePos.y, m_ViewportBounds[0].y + 1.0f, m_ViewportBounds[1].y - 1.0f);
+				io.AddMousePosEvent(clampedX, clampedY);
+				m_LastMousePos = glm::vec2(clampedX, clampedY);
+			}
+			else
+			{
+				// Normal update - track current position
+				m_LastMousePos = currentPos;
 			}
 		}
 		else
