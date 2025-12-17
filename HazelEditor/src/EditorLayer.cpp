@@ -652,7 +652,10 @@ namespace HazelEditor {
 	void EditorLayer::FocusOnEntity(Entity* entity)
 	{
 		if (!entity || !m_EditorCamera)
+		{
+			HZ_WARN("FocusOnEntity called with null entity or camera");
 			return;
+		}
 
 		// Get the entity's position from its transform
 		glm::vec3 entityPos = entity->EntityTransform.Position;
@@ -688,7 +691,10 @@ namespace HazelEditor {
 		m_EditorCamera->SetYaw(yaw);
 		m_EditorCamera->SetPitch(pitch);
 		
-		HZ_INFO("Camera focused on entity: " + entity->Name);
+		HZ_INFO("Camera focused on entity: " + entity->Name + 
+		        " at pos(" + std::to_string(entityPos.x) + "," + std::to_string(entityPos.y) + "," + std::to_string(entityPos.z) + ")" +
+		        " camera at(" + std::to_string(newCameraPos.x) + "," + std::to_string(newCameraPos.y) + "," + std::to_string(newCameraPos.z) + ")" +
+		        " yaw=" + std::to_string(yaw) + " pitch=" + std::to_string(pitch));
 	}
 
 	void EditorLayer::CreateEntity(const std::string& name, MeshType meshType)

@@ -74,6 +74,14 @@ namespace Hazel
 			layer->OnDetach();
 		}
 
+		// CRITICAL: Delete all layers before destroying OpenGL context
+		// This ensures OpenGL resources are freed while context is still valid
+		for (Layer* layer : m_LayerStack)
+		{
+			delete layer;
+		}
+		m_LayerStack.Clear();
+
 		// Cleanup GLFW
 		if (m_Window)
 		{
