@@ -126,13 +126,13 @@ Calling `reset()` on shared_ptr immediately decrements the reference count and d
 
 ### Order of Cleanup
 
-The cleanup order matters:
-1. **Index/Vertex Buffers first** - Must be released before VertexArrays that reference them
-2. **Vertex Arrays** - Can be safely destroyed after buffers
-3. **Materials and Shaders** - Can be destroyed after vertex arrays
-4. **Framebuffers and Camera** - No dependencies, can be destroyed last
+The cleanup order is important and follows a consistent pattern across all layers:
 
-This order prevents any potential use-after-free issues during cleanup.
+1. **Vertex Arrays first** - These hold references to buffers, so must be released before buffers
+2. **Index and Vertex Buffers** - Can be safely destroyed after vertex arrays
+3. **High-level rendering resources** - Materials, Shaders, Lights, Cameras, Framebuffers
+
+This order prevents any potential use-after-free issues during cleanup and ensures proper OpenGL resource management.
 
 ## Additional Notes
 

@@ -152,7 +152,13 @@ namespace HazelEditor {
 		// This prevents access violations when destructors try to call OpenGL functions
 		// after the context has been destroyed by GLFW
 		
-		// Release mesh buffers (must be done before VertexArrays)
+		// Release resources in reverse order of creation/dependency:
+		// 1. Vertex arrays (reference buffers, so release first)
+		m_CubeMesh.reset();
+		m_SphereMesh.reset();
+		m_CapsuleMesh.reset();
+		
+		// 2. Index and vertex buffers
 		m_CubeIndexBuffer.reset();
 		m_CubeVertexBuffer.reset();
 		m_SphereIndexBuffer.reset();
@@ -160,12 +166,7 @@ namespace HazelEditor {
 		m_CapsuleIndexBuffer.reset();
 		m_CapsuleVertexBuffer.reset();
 		
-		// Release vertex arrays
-		m_CubeMesh.reset();
-		m_SphereMesh.reset();
-		m_CapsuleMesh.reset();
-		
-		// Release rendering resources
+		// 3. High-level rendering resources
 		m_SceneLight.reset();
 		m_DefaultMaterial.reset();
 		m_SceneShader.reset();

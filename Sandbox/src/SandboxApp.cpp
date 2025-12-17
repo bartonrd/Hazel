@@ -181,12 +181,19 @@ public:
 		// CRITICAL: Release all OpenGL resources before the OpenGL context is destroyed
 		// This prevents access violations when destructors try to call OpenGL functions
 		// after the context has been destroyed by GLFW
+		
+		// Release resources in reverse order of creation/dependency:
+		// 1. Vertex array (references buffers, so release first)
+		m_VertexArray.reset();
+		
+		// 2. Index and vertex buffers
+		m_IndexBuffer.reset();
+		m_VertexBuffer.reset();
+		
+		// 3. High-level rendering resources
 		m_Light.reset();
 		m_Material.reset();
 		m_Shader.reset();
-		m_IndexBuffer.reset();
-		m_VertexBuffer.reset();
-		m_VertexArray.reset();
 		m_Camera.reset();
 		
 		HZ_INFO("Render3DLayer::OnDetach - All OpenGL resources released");
