@@ -84,4 +84,11 @@ namespace Hazel {
 		SetRotation(glm::vec3(m_Pitch, m_Yaw, 0.0f));
 	}
 
+	void EditorCamera::RecalculateViewMatrix()
+	{
+		// Use lookAt for FPS-style camera
+		glm::vec3 position = GetPosition();
+		SetViewMatrix(glm::lookAt(position, position + m_Front, m_Up));
+	}
+
 }

@@ -33,10 +33,11 @@ namespace Hazel {
 
 		ProjectionType GetProjectionType() const { return m_ProjectionType; }
 
-	private:
-		void RecalculateViewMatrix();
+	protected:
+		virtual void RecalculateViewMatrix();
+		void SetViewMatrix(const glm::mat4& viewMatrix) { m_ViewMatrix = viewMatrix; }
 
-	private:
+	protected:
 		ProjectionType m_ProjectionType;
 		glm::mat4 m_ProjectionMatrix;
 		glm::mat4 m_ViewMatrix;

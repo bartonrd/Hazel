@@ -36,6 +36,9 @@ namespace Hazel {
 		void SetYaw(float yaw) { m_Yaw = yaw; UpdateCameraVectors(); }
 		void SetPitch(float pitch) { m_Pitch = pitch; UpdateCameraVectors(); }
 
+	protected:
+		void RecalculateViewMatrix() override;
+
 	private:
 		void UpdateCameraVectors();
 
