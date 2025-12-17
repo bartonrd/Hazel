@@ -733,6 +733,14 @@ namespace HazelEditor {
 		
 		// Bind framebuffer and clear
 		m_SceneFramebuffer->Bind();
+		
+		// Check for OpenGL errors after binding framebuffer
+		GLenum err = glGetError();
+		if (err != GL_NO_ERROR && logOnce)
+		{
+			HZ_ERROR("OpenGL error after framebuffer bind: " + std::to_string(err));
+		}
+		
 		Hazel::Renderer::SetClearColor(glm::vec4(0.2f, 0.2f, 0.2f, 1.0f));
 		Hazel::Renderer::Clear();
 		
@@ -774,6 +782,21 @@ namespace HazelEditor {
 		if (logRenderOnce)
 		{
 			HZ_INFO("First render pass: " + std::to_string(entitiesRendered) + " entities rendered out of " + std::to_string(totalEntities) + " total");
+			
+			// Check framebuffer status
+			GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+			if (status != GL_FRAMEBUFFER_COMPLETE)
+			{
+				HZ_ERROR("Framebuffer is not complete! Status: " + std::to_string(status));
+			}
+			else
+			{
+				HZ_INFO("Framebuffer is complete and ready");
+			}
+			
+			// Log framebuffer texture ID
+			HZ_INFO("Framebuffer color attachment ID: " + std::to_string(m_SceneFramebuffer->GetColorAttachment()));
+			
 			logRenderOnce = false;
 		}
 		
@@ -783,6 +806,18 @@ namespace HazelEditor {
 		}
 		
 		Hazel::Renderer::EndScene();
+		
+		// Check for OpenGL errors after rendering
+		err = glGetError();
+		if (err != GL_NO_ERROR)
+		{
+			static bool errorLogged = false;
+			if (!errorLogged)
+			{
+				HZ_ERROR("OpenGL error after rendering: " + std::to_string(err));
+				errorLogged = true;
+			}
+		}
 		
 		// Unbind framebuffer
 		m_SceneFramebuffer->Unbind();
