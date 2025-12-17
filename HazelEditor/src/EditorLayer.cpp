@@ -166,6 +166,9 @@ namespace HazelEditor {
 
 	void EditorLayer::OnImGuiRender()
 	{
+		// Initialize ImGuizmo for this frame
+		ImGuizmo::BeginFrame();
+		
 		// Draw the main menu bar at the top (outside dockspace)
 		DrawMenuBar();
 		

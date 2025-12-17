@@ -102,6 +102,13 @@ void HandleSceneViewMousePicking();
 // Added ImGuizmo header
 #include <ImGuizmo.h>
 
+// CRITICAL: Initialize ImGuizmo at the start of each frame in OnImGuiRender()
+void EditorLayer::OnImGuiRender()
+{
+    ImGuizmo::BeginFrame();  // Must be called once per frame
+    // ... rest of UI rendering
+}
+
 // Gizmo rendering in DrawSceneView()
 if (m_SelectedEntity && m_GizmoEnabled && m_SelectedEntity->Mesh != MeshType::None)
 {
@@ -248,8 +255,12 @@ Potential improvements for the gizmo system:
 - Ensure an entity with a mesh is selected (not Camera or Light)
 - Check that `m_GizmoEnabled` is true
 - Verify entity transform is valid (no NaN values)
+- **CRITICAL**: Verify `ImGuizmo::BeginFrame()` is called once per frame in `OnImGuiRender()`
 
-### Gizmo Not Responding to Mouse
+### Gizmo Not Responding to Mouse / Cannot Drag Handles
+- **MOST COMMON**: Ensure `ImGuizmo::BeginFrame()` is called at the start of `OnImGuiRender()`
+  - Without this call, ImGuizmo cannot track frame state and mouse input will not work
+  - This must be called once per frame, before any ImGuizmo rendering
 - Check viewport bounds are correctly calculated
 - Ensure ImGuizmo::SetRect() is called with correct coordinates
 - Verify ImGui window is focused and hovered
