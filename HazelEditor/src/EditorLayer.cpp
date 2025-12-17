@@ -1,5 +1,6 @@
 #include "EditorLayer.h"
 #include "Hazel/ImGui/ImGuiLayer.h"
+#include "Hazel/Application.h"
 #include "Hazel/Renderer/MeshGenerator.h"
 #include "Hazel/Renderer/OpenGLLoader.h"
 #include <imgui.h>
@@ -9,6 +10,7 @@
 #include <algorithm>
 #include <cmath>
 #include <string>
+#include <GLFW/glfw3.h>
 
 namespace HazelEditor {
 
@@ -687,7 +689,8 @@ namespace HazelEditor {
 			m_EditorCamera->ProcessMouseMovement(delta.x, -delta.y);
 			
 			// Reset cursor to initial position to keep it locked
-			ImGui::SetMousePos(ImVec2(m_InitialMousePos.x, m_InitialMousePos.y));
+			GLFWwindow* window = Hazel::Application::Get().GetWindow();
+			glfwSetCursorPos(window, m_InitialMousePos.x, m_InitialMousePos.y);
 			m_LastMousePos = m_InitialMousePos;
 		}
 		else
